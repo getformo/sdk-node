@@ -1,18 +1,17 @@
 // Property normalization utilities
-// Matches web SDK: sdk/src/lib/event/EventFactory.ts generateTrackEvent
 
-import type { EventProperties } from "../types";
+import type { IFormoEventProperties } from "../types";
 
 /**
- * Normalize track event properties to match web SDK behavior
+ * Normalize track event properties
  * - revenue: convert to number
  * - currency: convert to lowercase string (default: "usd")
  * - points: convert to number
  * - volume: convert to number
  */
 export function normalizeTrackProperties(
-  properties: EventProperties | undefined
-): EventProperties {
+  properties: IFormoEventProperties | undefined
+): IFormoEventProperties {
   if (!properties) return {};
 
   const normalized = { ...properties };

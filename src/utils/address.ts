@@ -1,6 +1,5 @@
 /**
  * Address utilities for Ethereum address validation and checksumming
- * Adapted from web SDK: sdk/src/utils/address.ts
  */
 
 import { keccak256 } from "ethereum-cryptography/keccak.js";

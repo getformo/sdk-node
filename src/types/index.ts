@@ -5,8 +5,8 @@ export type Nullable<T> = T | null;
 // Ethereum wallet address (hex string with 0x prefix)
 export type Address = string;
 
-export type EventProperties = Record<string, unknown>;
-export type EventContext = Record<string, unknown>;
+export type IFormoEventProperties = Record<string, unknown>;
+export type IFormoEventContext = Record<string, unknown>;
 
 export type UserTraits = Record<string, unknown>;
 
@@ -17,8 +17,8 @@ export interface TrackAPIEvent {
 
   // Optional
   userId?: string;
-  properties?: EventProperties; // custom properties
-  context?: EventContext; // contextual information
+  properties?: IFormoEventProperties; // custom properties
+  context?: IFormoEventContext; // contextual information
   address?: Address; // Ethereum wallet address (validated and checksummed)
 }
 
@@ -30,7 +30,7 @@ export interface IdentifyAPIEvent {
   // Optional
   traits?: UserTraits; // User traits/properties
   address?: Address; // Ethereum wallet address (validated and checksummed)
-  context?: EventContext; // contextual information
+  context?: IFormoEventContext; // contextual information
 }
 
 // SDK configuration options

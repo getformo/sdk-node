@@ -1,10 +1,5 @@
 /**
  * Ethereum address validation utilities
- * Adapted from web SDK: sdk/src/validators/address.ts
- *
- * Note: This is a simplified version without checksum validation
- * to avoid heavy crypto dependencies. For server-side use cases,
- * basic format validation is usually sufficient.
  */
 
 import { isString } from "./checks";

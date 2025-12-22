@@ -1,6 +1,5 @@
 /**
  * Basic type checking utilities
- * Adapted from web SDK: sdk/src/validators/checks.ts
  */
 
 /**
