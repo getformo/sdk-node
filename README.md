@@ -32,7 +32,7 @@ await analytics.track({
 await analytics.identify({
   anonymousId: "device-uuid",
   userId: "user-123",
-  traits: {
+  properties: {
     email: "user@example.com",
     plan: "premium",
   },
@@ -91,7 +91,7 @@ await analytics.identify({
   userId: "user-123", // Your user identifier
 
   // Optional
-  traits: {}, // User properties
+  properties: {}, // User properties
   address: "0x...", // Ethereum wallet address
   context: {}, // Additional context
 });
