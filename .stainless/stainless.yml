@@ -50,9 +50,11 @@ resources:
       subscribe_to_form_events: post /webhooks
       unsubscribe_from_form_events: delete /webhooks
 
-  raw_events:
+  events:
     methods:
       track: post /v0/raw_events
+    models:
+      event: "#/components/schemas/Event"
 
 settings:
   # All generated integration tests that hit the prism mock http server are marked
