@@ -1,5 +1,15 @@
 {
+  "name": "@formo/analytics-node",
+  "version": "1.0.0",
+  "main": "dist/cjs/src/index.js",
+  "module": "dist/esm/src/index.js",
+  "types": "dist/cjs/src/index.d.ts",
   "scripts": {
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
     "test:queue": "jest src/queue/EventQueue.test.ts",
     "test:integration": "RUN_INTEGRATION_TESTS=true jest src/__tests__/integration.test.ts --runInBand"
