@@ -249,7 +249,7 @@ async function main() {
   console.log("Sending test track event...");
 
   analytics.track({
-    anonymousId: "TEST_SDK_NODE_LINK_TEST",
+    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
     event: "SDK Backend Link Test",
     properties: {
       source: "formono-backend",
@@ -259,7 +259,7 @@ async function main() {
   });
 
   console.log("   Event queued:", {
-    anonymousId: "TEST_SDK_NODE_LINK_TEST",
+    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
     event: "SDK Backend Link Test",
     properties: {
       source: "formono-backend",
@@ -271,9 +271,9 @@ async function main() {
   console.log("\nSending test identify event...");
 
   analytics.identify({
-    anonymousId: "TEST_SDK_NODE_LINK_TEST",
+    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
     userId: "test-user-backend",
-    traits: {
+    properties: {
       email: "test@formono-backend.local",
       source: "formono-backend",
       testTimestamp: timestamp,
@@ -281,9 +281,9 @@ async function main() {
   });
 
   console.log("   Identify event queued:", {
-    anonymousId: "TEST_SDK_NODE_LINK_TEST",
+    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
     userId: "test-user-backend",
-    traits: {
+    properties: {
       email: "test@formono-backend.local",
       source: "formono-backend",
     },

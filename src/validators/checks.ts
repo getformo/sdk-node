@@ -55,3 +55,10 @@ export const isObject = (value: unknown): value is Record<string, unknown> =>
  */
 export const isArray = (value: unknown): value is unknown[] =>
   Array.isArray(value);
+
+/**
+ * Check if value is a valid UUID
+ */
+export const isUUID = (value: unknown): value is string =>
+  typeof value === "string" &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
