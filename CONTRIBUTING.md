@@ -64,7 +64,7 @@ If you need to set up Stainless for the first time:
 1. **Install the Stainless CLI:**
 
    ```bash
-   npm install -g stainless
+   brew install stainless-api/tap/stl
    ```
 
 2. **Initialize Stainless in your project:**
