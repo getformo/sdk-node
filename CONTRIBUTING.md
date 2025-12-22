@@ -70,7 +70,7 @@ If you need to set up Stainless for the first time:
 2. **Initialize Stainless in your project:**
 
    ```bash
-   stainless init
+   stl init
    ```
 
    During initialization, you'll be prompted to:
