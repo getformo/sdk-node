@@ -8,10 +8,10 @@ import {
   isAddress,
   isNullOrUndefined,
 } from "./index";
-import type { TrackOptions, IdentifyOptions } from "../types";
+import type { TrackAPIEvent, IdentifyAPIEvent } from "../types";
 
 // Re-export types for convenience
-export type { TrackOptions, IdentifyOptions } from "../types";
+export type { TrackAPIEvent, IdentifyAPIEvent } from "../types";
 
 /**
  * Custom error class for validation errors
@@ -37,7 +37,7 @@ export class ValidationError extends Error {
  *   properties: { buttonId: "cta" }
  * });
  */
-export function validateTrackOptions(options: TrackOptions): void {
+export function validateTrackEvent(options: TrackAPIEvent): void {
   // Required: anonymousId must be a non-empty string
   if (!isNonEmptyString(options.anonymousId)) {
     throw new ValidationError("anonymousId", "must be a non-empty string");
@@ -88,7 +88,7 @@ export function validateTrackOptions(options: TrackOptions): void {
  *   traits: { email: "user@example.com" }
  * });
  */
-export function validateIdentifyOptions(options: IdentifyOptions): void {
+export function validateIdentifyEvent(options: IdentifyAPIEvent): void {
   // Required: anonymousId must be a non-empty string
   if (!isNonEmptyString(options.anonymousId)) {
     throw new ValidationError("anonymousId", "must be a non-empty string");

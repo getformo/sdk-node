@@ -1,31 +1,35 @@
 import { SDKServerSide } from "../sdks/sdk-server-side-typescript";
 import { randomUUID } from "crypto";
 import {
-  TrackOptions,
-  IdentifyOptions,
-  validateTrackOptions,
-  validateIdentifyOptions,
+  TrackAPIEvent,
+  IdentifyAPIEvent,
+  validateTrackEvent,
+  validateIdentifyEvent,
 } from "./validators";
-import { getChecksumAddress } from "./utils";
+import { getChecksumAddress, normalizeTrackProperties } from "./utils";
+import { EventQueue } from "./queue";
+import type { AnalyticsOptions } from "./types";
 
 const VERSION = "0";
 const LIBRARY_NAME = "Formo Node SDK";
 const LIBRARY_VERSION = "1.0.0";
 
-/**
- * Re-export types for consumers
- */
-export type { TrackOptions, IdentifyOptions };
+// Re-export types for consumers
+export type { TrackAPIEvent, IdentifyAPIEvent, AnalyticsOptions };
 export { ValidationError } from "./validators";
 
 /**
  * Formo Analytics SDK for Node.js
  *
  * Server-side analytics for tracking events and identifying users.
+ * Events are batched and sent efficiently with retry logic.
  *
  * @example
  * ```typescript
- * const analytics = new FormoAnalytics("your-write-key");
+ * const analytics = new FormoAnalytics("your-write-key", {
+ *   flushAt: 20,      // Flush after 20 events
+ *   flushInterval: 30000, // Flush every 30 seconds
+ * });
  *
  * // Track an event
  * await analytics.track({
@@ -40,16 +44,21 @@ export { ValidationError } from "./validators";
  *   userId: "user-123",
  *   traits: { email: "user@example.com", plan: "premium" }
  * });
+ *
+ * // Flush pending events before shutdown
+ * await analytics.flush();
  * ```
  */
 export class FormoAnalytics {
   private client: SDKServerSide;
+  private queue: EventQueue;
 
   /**
    * Create a new FormoAnalytics instance
    * @param writeKey - Your Formo project write key
+   * @param options - Optional configuration
    */
-  constructor(writeKey: string) {
+  constructor(writeKey: string, options: AnalyticsOptions = {}) {
     if (!writeKey || typeof writeKey !== "string") {
       throw new Error("writeKey is required and must be a string");
     }
@@ -58,6 +67,8 @@ export class FormoAnalytics {
       bearerToken: writeKey,
       environment: "environment_1", // events.formo.so
     });
+
+    this.queue = new EventQueue(this.client, options);
   }
 
   /**
@@ -73,26 +84,25 @@ export class FormoAnalytics {
    *
    * @throws ValidationError if options are invalid
    */
-  async track(options: TrackOptions): Promise<void> {
-    // Validate inputs before making API call
-    validateTrackOptions(options);
+  async track(event: TrackAPIEvent): Promise<void> {
+    // Validate inputs before queuing
+    validateTrackEvent(event);
 
     const now = new Date().toISOString();
-    // Normalize address to checksummed format (EIP-55)
-    const checksumAddress = getChecksumAddress(options.address);
+    const checksumAddress = getChecksumAddress(event.address);
 
-    await this.client.rawEvents.track({
+    await this.queue.enqueue({
       type: "track",
       channel: "server",
       version: VERSION,
-      anonymous_id: options.anonymousId,
-      user_id: options.userId ?? null,
-      event: options.event,
-      properties: options.properties ?? {},
+      anonymous_id: event.anonymousId,
+      user_id: event.userId ?? null,
+      event: event.event,
+      properties: normalizeTrackProperties(event.properties),
       context: {
         library_name: LIBRARY_NAME,
         library_version: LIBRARY_VERSION,
-        ...options.context,
+        ...event.context,
       },
       address: checksumAddress,
       original_timestamp: now,
@@ -113,30 +123,37 @@ export class FormoAnalytics {
    *
    * @throws ValidationError if options are invalid
    */
-  async identify(options: IdentifyOptions): Promise<void> {
-    // Validate inputs before making API call
-    validateIdentifyOptions(options);
+  async identify(event: IdentifyAPIEvent): Promise<void> {
+    // Validate inputs before queuing
+    validateIdentifyEvent(event);
 
     const now = new Date().toISOString();
-    // Normalize address to checksummed format (EIP-55)
-    const checksumAddress = getChecksumAddress(options.address);
+    const checksumAddress = getChecksumAddress(event.address);
 
-    await this.client.rawEvents.track({
+    await this.queue.enqueue({
       type: "identify",
       channel: "server",
       version: VERSION,
-      anonymous_id: options.anonymousId,
-      user_id: options.userId,
-      properties: options.traits ?? {},
+      anonymous_id: event.anonymousId,
+      user_id: event.userId,
+      properties: event.traits ?? {},
       context: {
         library_name: LIBRARY_NAME,
         library_version: LIBRARY_VERSION,
-        ...options.context,
+        ...event.context,
       },
       address: checksumAddress,
       original_timestamp: now,
       sent_at: now,
       message_id: randomUUID(),
     });
+  }
+
+  /**
+   * Flush all pending events
+   * Call this before process shutdown to ensure all events are sent
+   */
+  async flush(): Promise<void> {
+    await this.queue.flush();
   }
 }
