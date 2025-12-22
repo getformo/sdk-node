@@ -1,7 +1,8 @@
 {
   "scripts": {
     "test": "jest",
-    "test:queue": "jest src/queue/EventQueue.test.ts"
+    "test:queue": "jest src/queue/EventQueue.test.ts",
+    "test:integration": "RUN_INTEGRATION_TESTS=true jest src/__tests__/integration.test.ts --runInBand"
   },
   "dependencies": {
     "ethereum-cryptography": "^3.2.0",
