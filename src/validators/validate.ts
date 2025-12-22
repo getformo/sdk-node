@@ -25,31 +25,31 @@ export class ValidationError extends Error {
 }
 
 /**
- * Validates options for track() method
+ * Validates event for track() method
  *
- * @param options - The track options to validate
+ * @param event - The track event to validate
  * @throws ValidationError if any field is invalid
  *
  * @example
- * validateTrackOptions({
+ * validateTrackEvent({
  *   anonymousId: "device-123",
  *   event: "Button Clicked",
  *   properties: { buttonId: "cta" }
  * });
  */
-export function validateTrackEvent(options: TrackAPIEvent): void {
+export function validateTrackEvent(event: TrackAPIEvent): void {
   // Required: anonymousId must be a non-empty string
-  if (!isNonEmptyString(options.anonymousId)) {
+  if (!isNonEmptyString(event.anonymousId)) {
     throw new ValidationError("anonymousId", "must be a non-empty string");
   }
 
   // Required: event must be a non-empty string
-  if (!isNonEmptyString(options.event)) {
+  if (!isNonEmptyString(event.event)) {
     throw new ValidationError("event", "must be a non-empty string");
   }
 
   // Optional: userId must be a non-empty string if provided
-  if (!isNullOrUndefined(options.userId) && !isNonEmptyString(options.userId)) {
+  if (!isNullOrUndefined(event.userId) && !isNonEmptyString(event.userId)) {
     throw new ValidationError(
       "userId",
       "must be a non-empty string if provided"
@@ -57,17 +57,17 @@ export function validateTrackEvent(options: TrackAPIEvent): void {
   }
 
   // Optional: properties must be an object if provided
-  if (!isNullOrUndefined(options.properties) && !isObject(options.properties)) {
+  if (!isNullOrUndefined(event.properties) && !isObject(event.properties)) {
     throw new ValidationError("properties", "must be an object if provided");
   }
 
   // Optional: context must be an object if provided
-  if (!isNullOrUndefined(options.context) && !isObject(options.context)) {
+  if (!isNullOrUndefined(event.context) && !isObject(event.context)) {
     throw new ValidationError("context", "must be an object if provided");
   }
 
   // Optional: address must be a valid Ethereum address if provided
-  if (!isNullOrUndefined(options.address) && !isAddress(options.address)) {
+  if (!isNullOrUndefined(event.address) && !isAddress(event.address)) {
     throw new ValidationError(
       "address",
       "must be a valid Ethereum address (0x followed by 40 hex characters)"
@@ -76,41 +76,41 @@ export function validateTrackEvent(options: TrackAPIEvent): void {
 }
 
 /**
- * Validates options for identify() method
+ * Validates event for identify() method
  *
- * @param options - The identify options to validate
+ * @param event - The identify event to validate
  * @throws ValidationError if any field is invalid
  *
  * @example
- * validateIdentifyOptions({
+ * validateIdentifyEvent({
  *   anonymousId: "device-123",
  *   userId: "user-456",
  *   traits: { email: "user@example.com" }
  * });
  */
-export function validateIdentifyEvent(options: IdentifyAPIEvent): void {
+export function validateIdentifyEvent(event: IdentifyAPIEvent): void {
   // Required: anonymousId must be a non-empty string
-  if (!isNonEmptyString(options.anonymousId)) {
+  if (!isNonEmptyString(event.anonymousId)) {
     throw new ValidationError("anonymousId", "must be a non-empty string");
   }
 
   // Required: userId must be a non-empty string
-  if (!isNonEmptyString(options.userId)) {
+  if (!isNonEmptyString(event.userId)) {
     throw new ValidationError("userId", "must be a non-empty string");
   }
 
   // Optional: traits must be an object if provided
-  if (!isNullOrUndefined(options.traits) && !isObject(options.traits)) {
+  if (!isNullOrUndefined(event.traits) && !isObject(event.traits)) {
     throw new ValidationError("traits", "must be an object if provided");
   }
 
   // Optional: context must be an object if provided
-  if (!isNullOrUndefined(options.context) && !isObject(options.context)) {
+  if (!isNullOrUndefined(event.context) && !isObject(event.context)) {
     throw new ValidationError("context", "must be an object if provided");
   }
 
   // Optional: address must be a valid Ethereum address if provided
-  if (!isNullOrUndefined(options.address) && !isAddress(options.address)) {
+  if (!isNullOrUndefined(event.address) && !isAddress(event.address)) {
     throw new ValidationError(
       "address",
       "must be a valid Ethereum address (0x followed by 40 hex characters)"

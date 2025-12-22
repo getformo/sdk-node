@@ -74,13 +74,13 @@ export class FormoAnalytics {
   /**
    * Track a custom event
    *
-   * @param options - Track options
-   * @param options.anonymousId - Required. Device/session identifier
-   * @param options.event - Required. Event name
-   * @param options.userId - Optional. Your user identifier
-   * @param options.properties - Optional. Event properties
-   * @param options.address - Optional. Ethereum wallet address
-   * @param options.context - Optional. Additional context
+   * @param event - Track event
+   * @param event.anonymousId - Required. Device/session identifier
+   * @param event.event - Required. Event name
+   * @param event.userId - Optional. Your user identifier
+   * @param event.properties - Optional. Event properties
+   * @param event.address - Optional. Ethereum wallet address
+   * @param event.context - Optional. Additional context
    *
    * @throws ValidationError if options are invalid
    */
@@ -114,12 +114,12 @@ export class FormoAnalytics {
   /**
    * Identify a user
    *
-   * @param options - Identify options
-   * @param options.anonymousId - Required. Device/session identifier
-   * @param options.userId - Required. Your user identifier
-   * @param options.traits - Optional. User traits/properties
-   * @param options.address - Optional. Ethereum wallet address
-   * @param options.context - Optional. Additional context
+   * @param event - Identify event
+   * @param event.anonymousId - Required. Device/session identifier
+   * @param event.userId - Required. Your user identifier
+   * @param event.traits - Optional. User traits/properties
+   * @param event.address - Optional. Ethereum wallet address
+   * @param event.context - Optional. Additional context
    *
    * @throws ValidationError if options are invalid
    */
