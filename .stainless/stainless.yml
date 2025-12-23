@@ -32,6 +32,17 @@ targets:
 environments:
   production: https://events.formo.so
 
+# `client_settings` define settings for the API client, such as extra constructor
+# arguments (used for authentication), retry behavior, idempotency, etc.
+client_settings:
+  opts:
+    api_key:
+      type: string
+      nullable: false
+      read_env: FORMO_API_KEY
+      auth:
+        security_scheme: BearerAuth
+
 # `resources` define the structure and organization for your API, such as how
 # methods and models are grouped together and accessed. See the [configuration
 # guide] for more information.
@@ -44,6 +55,8 @@ resources:
       identify: post /v0/raw_events
     models:
       event: "#/components/schemas/Event"
+      event_context: "#/components/schemas/EventContext"
+      event_properties: "#/components/schemas/EventProperties"
 
 settings:
   # All generated integration tests that hit the prism mock http server are marked
@@ -56,7 +69,6 @@ settings:
   license: Apache-2.0
 
 security:
-  - ApiKeyAuth: []
   - BearerAuth: []
 
 # `readme` is used to configure the code snippets that will be rendered in the
