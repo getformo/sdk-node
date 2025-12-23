@@ -1,18 +1,37 @@
 {
+  "include": ["src", "tests", "examples"],
+  "exclude": [],
   "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["ES2020"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "target": "es2020",
+    "lib": ["es2020"],
+    "module": "commonjs",
     "moduleResolution": "node",
+    "esModuleInterop": true,
+    "paths": {
+      "sdk-server-side/*": ["./src/*"],
+      "sdk-server-side": ["./src/index.ts"]
+    },
+    "noEmit": true,
+
     "resolveJsonModule": true,
-    "rootDir": "."
-  },
-  "include": ["src/**/*", "sdks/sdk-server-side-typescript/index.ts", "sdks/sdk-server-side-typescript/src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/__tests__/**"]
+
+    "forceConsistentCasingInFileNames": true,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "isolatedModules": false,
+
+    "skipLibCheck": true
+  }
 }

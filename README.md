@@ -1,365 +1,367 @@
-# Formo Node SDK
+# SDK Server Side TypeScript API Library
 
-Server-side Node.js SDK for [Formo Analytics](https://formo.so).
+[![NPM version](<https://img.shields.io/npm/v/sdk-server-side.svg?label=npm%20(stable)>)](https://npmjs.org/package/sdk-server-side) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/sdk-server-side)
+
+This library provides convenient access to the SDK Server Side REST API from server-side TypeScript or JavaScript.
+
+The full API of this library can be found in [api.md](api.md).
+
+It is generated with [Stainless](https://www.stainless.com/).
 
 ## Installation
 
-```bash
-npm install @formo/analytics-node
-# or
-pnpm add @formo/analytics-node
+```sh
+npm install git+ssh://git@github.com:stainless-sdks/sdk-server-side-typescript.git
 ```
 
-## Quick Start
+> [!NOTE]
+> Once this package is [published to npm](https://www.stainless.com/docs/guides/publish), this will become: `npm install sdk-server-side`
 
-```typescript
-import { FormoAnalytics } from "@formo/analytics-node";
+## Usage
 
-const analytics = new FormoAnalytics("your-write-key");
+The full API of this library can be found in [api.md](api.md).
 
-// Track an event
-await analytics.track({
-  anonymousId: "device-uuid",
-  event: "Purchase Completed",
-  properties: {
-    orderId: "123",
-    total: 99.99,
-    currency: "USD",
+<!-- prettier-ignore -->
+```js
+import SDKServerSide from 'sdk-server-side';
+
+const client = new SDKServerSide({
+  apiKey: process.env['SDK_SERVER_SIDE_API_KEY'], // This is the default and can be omitted
+  environment: 'environment_1', // defaults to 'production'
+});
+
+const response = await client.webhooks.listFormResponses('REPLACE_ME');
+
+console.log(response.data);
+```
+
+### Request & Response types
+
+This library includes TypeScript definitions for all request params and response fields. You may import and use them like so:
+
+<!-- prettier-ignore -->
+```ts
+import SDKServerSide from 'sdk-server-side';
+
+const client = new SDKServerSide({
+  apiKey: process.env['SDK_SERVER_SIDE_API_KEY'], // This is the default and can be omitted
+  environment: 'environment_1', // defaults to 'production'
+});
+
+const response: SDKServerSide.WebhookListFormResponsesResponse = await client.webhooks.listFormResponses(
+  'REPLACE_ME',
+);
+```
+
+Documentation for each method, request param, and response field are available in docstrings and will appear on hover in most modern editors.
+
+## Handling errors
+
+When the library is unable to connect to the API,
+or if the API returns a non-success status code (i.e., 4xx or 5xx response),
+a subclass of `APIError` will be thrown:
+
+<!-- prettier-ignore -->
+```ts
+const response = await client.webhooks.listFormResponses('REPLACE_ME').catch(async (err) => {
+  if (err instanceof SDKServerSide.APIError) {
+    console.log(err.status); // 400
+    console.log(err.name); // BadRequestError
+    console.log(err.headers); // {server: 'nginx', ...}
+  } else {
+    throw err;
+  }
+});
+```
+
+Error codes are as follows:
+
+| Status Code | Error Type                 |
+| ----------- | -------------------------- |
+| 400         | `BadRequestError`          |
+| 401         | `AuthenticationError`      |
+| 403         | `PermissionDeniedError`    |
+| 404         | `NotFoundError`            |
+| 422         | `UnprocessableEntityError` |
+| 429         | `RateLimitError`           |
+| >=500       | `InternalServerError`      |
+| N/A         | `APIConnectionError`       |
+
+### Retries
+
+Certain errors will be automatically retried 2 times by default, with a short exponential backoff.
+Connection errors (for example, due to a network connectivity problem), 408 Request Timeout, 409 Conflict,
+429 Rate Limit, and >=500 Internal errors will all be retried by default.
+
+You can use the `maxRetries` option to configure or disable this:
+
+<!-- prettier-ignore -->
+```js
+// Configure the default for all requests:
+const client = new SDKServerSide({
+  maxRetries: 0, // default is 2
+});
+
+// Or, configure per-request:
+await client.webhooks.listFormResponses('REPLACE_ME', {
+  maxRetries: 5,
+});
+```
+
+### Timeouts
+
+Requests time out after 1 minute by default. You can configure this with a `timeout` option:
+
+<!-- prettier-ignore -->
+```ts
+// Configure the default for all requests:
+const client = new SDKServerSide({
+  timeout: 20 * 1000, // 20 seconds (default is 1 minute)
+});
+
+// Override per-request:
+await client.webhooks.listFormResponses('REPLACE_ME', {
+  timeout: 5 * 1000,
+});
+```
+
+On timeout, an `APIConnectionTimeoutError` is thrown.
+
+Note that requests which time out will be [retried twice by default](#retries).
+
+## Advanced Usage
+
+### Accessing raw Response data (e.g., headers)
+
+The "raw" `Response` returned by `fetch()` can be accessed through the `.asResponse()` method on the `APIPromise` type that all methods return.
+This method returns as soon as the headers for a successful response are received and does not consume the response body, so you are free to write custom parsing or streaming logic.
+
+You can also use the `.withResponse()` method to get the raw `Response` along with the parsed data.
+Unlike `.asResponse()` this method consumes the body, returning once it is parsed.
+
+<!-- prettier-ignore -->
+```ts
+const client = new SDKServerSide();
+
+const response = await client.webhooks.listFormResponses('REPLACE_ME').asResponse();
+console.log(response.headers.get('X-My-Header'));
+console.log(response.statusText); // access the underlying Response object
+
+const { data: response, response: raw } = await client.webhooks
+  .listFormResponses('REPLACE_ME')
+  .withResponse();
+console.log(raw.headers.get('X-My-Header'));
+console.log(response.data);
+```
+
+### Logging
+
+> [!IMPORTANT]
+> All log messages are intended for debugging only. The format and content of log messages
+> may change between releases.
+
+#### Log levels
+
+The log level can be configured in two ways:
+
+1. Via the `SDK_SERVER_SIDE_LOG` environment variable
+2. Using the `logLevel` client option (overrides the environment variable if set)
+
+```ts
+import SDKServerSide from 'sdk-server-side';
+
+const client = new SDKServerSide({
+  logLevel: 'debug', // Show all log messages
+});
+```
+
+Available log levels, from most to least verbose:
+
+- `'debug'` - Show debug messages, info, warnings, and errors
+- `'info'` - Show info messages, warnings, and errors
+- `'warn'` - Show warnings and errors (default)
+- `'error'` - Show only errors
+- `'off'` - Disable all logging
+
+At the `'debug'` level, all HTTP requests and responses are logged, including headers and bodies.
+Some authentication-related headers are redacted, but sensitive data in request and response bodies
+may still be visible.
+
+#### Custom logger
+
+By default, this library logs to `globalThis.console`. You can also provide a custom logger.
+Most logging libraries are supported, including [pino](https://www.npmjs.com/package/pino), [winston](https://www.npmjs.com/package/winston), [bunyan](https://www.npmjs.com/package/bunyan), [consola](https://www.npmjs.com/package/consola), [signale](https://www.npmjs.com/package/signale), and [@std/log](https://jsr.io/@std/log). If your logger doesn't work, please open an issue.
+
+When providing a custom logger, the `logLevel` option still controls which messages are emitted, messages
+below the configured level will not be sent to your logger.
+
+```ts
+import SDKServerSide from 'sdk-server-side';
+import pino from 'pino';
+
+const logger = pino();
+
+const client = new SDKServerSide({
+  logger: logger.child({ name: 'SDKServerSide' }),
+  logLevel: 'debug', // Send all messages to pino, allowing it to filter
+});
+```
+
+### Making custom/undocumented requests
+
+This library is typed for convenient access to the documented API. If you need to access undocumented
+endpoints, params, or response properties, the library can still be used.
+
+#### Undocumented endpoints
+
+To make requests to undocumented endpoints, you can use `client.get`, `client.post`, and other HTTP verbs.
+Options on the client, such as retries, will be respected when making these requests.
+
+```ts
+await client.post('/some/path', {
+  body: { some_prop: 'foo' },
+  query: { some_query_arg: 'bar' },
+});
+```
+
+#### Undocumented request params
+
+To make requests using undocumented parameters, you may use `// @ts-expect-error` on the undocumented
+parameter. This library doesn't validate at runtime that the request matches the type, so any extra values you
+send will be sent as-is.
+
+```ts
+client.webhooks.listFormResponses({
+  // ...
+  // @ts-expect-error baz is not yet public
+  baz: 'undocumented option',
+});
+```
+
+For requests with the `GET` verb, any extra params will be in the query, all other requests will send the
+extra param in the body.
+
+If you want to explicitly send an extra argument, you can do so with the `query`, `body`, and `headers` request
+options.
+
+#### Undocumented response properties
+
+To access undocumented response properties, you may access the response object with `// @ts-expect-error` on
+the response object, or cast the response object to the requisite type. Like the request params, we do not
+validate or strip extra properties from the response from the API.
+
+### Customizing the fetch client
+
+By default, this library expects a global `fetch` function is defined.
+
+If you want to use a different `fetch` function, you can either polyfill the global:
+
+```ts
+import fetch from 'my-fetch';
+
+globalThis.fetch = fetch;
+```
+
+Or pass it to the client:
+
+```ts
+import SDKServerSide from 'sdk-server-side';
+import fetch from 'my-fetch';
+
+const client = new SDKServerSide({ fetch });
+```
+
+### Fetch options
+
+If you want to set custom `fetch` options without overriding the `fetch` function, you can provide a `fetchOptions` object when instantiating the client or making a request. (Request-specific options override client options.)
+
+```ts
+import SDKServerSide from 'sdk-server-side';
+
+const client = new SDKServerSide({
+  fetchOptions: {
+    // `RequestInit` options
   },
 });
+```
 
-// Identify a user
-await analytics.identify({
-  anonymousId: "device-uuid",
-  userId: "user-123",
-  properties: {
-    email: "user@example.com",
-    plan: "premium",
+#### Configuring proxies
+
+To modify proxy behavior, you can provide custom `fetchOptions` that add runtime-specific proxy
+options to requests:
+
+<img src="https://raw.githubusercontent.com/stainless-api/sdk-assets/refs/heads/main/node.svg" align="top" width="18" height="21"> **Node** <sup>[[docs](https://github.com/nodejs/undici/blob/main/docs/docs/api/ProxyAgent.md#example---proxyagent-with-fetch)]</sup>
+
+```ts
+import SDKServerSide from 'sdk-server-side';
+import * as undici from 'undici';
+
+const proxyAgent = new undici.ProxyAgent('http://localhost:8888');
+const client = new SDKServerSide({
+  fetchOptions: {
+    dispatcher: proxyAgent,
   },
 });
-
-// Flush pending events before shutdown
-await analytics.flush();
 ```
 
-## API Reference
+<img src="https://raw.githubusercontent.com/stainless-api/sdk-assets/refs/heads/main/bun.svg" align="top" width="18" height="21"> **Bun** <sup>[[docs](https://bun.sh/guides/http/proxy)]</sup>
 
-### `new FormoAnalytics(writeKey, options?)`
+```ts
+import SDKServerSide from 'sdk-server-side';
 
-Create a new analytics instance.
-
-| Option          | Type     | Default  | Description                      |
-| --------------- | -------- | -------- | -------------------------------- |
-| `flushAt`       | `number` | `20`     | Flush when N events are queued   |
-| `flushInterval` | `number` | `30000`  | Flush every N milliseconds       |
-| `maxQueueSize`  | `number` | `500000` | Flush when queue exceeds N bytes |
-| `retryCount`    | `number` | `3`      | Retry failed requests N times    |
-
-```typescript
-const analytics = new FormoAnalytics("your-write-key", {
-  flushAt: 10,
-  flushInterval: 10000,
+const client = new SDKServerSide({
+  fetchOptions: {
+    proxy: 'http://localhost:8888',
+  },
 });
 ```
 
-### `analytics.track(event)`
+<img src="https://raw.githubusercontent.com/stainless-api/sdk-assets/refs/heads/main/deno.svg" align="top" width="18" height="21"> **Deno** <sup>[[docs](https://docs.deno.com/api/deno/~/Deno.createHttpClient)]</sup>
 
-Track a custom event.
+```ts
+import SDKServerSide from 'npm:sdk-server-side';
 
-```typescript
-await analytics.track({
-  // Required
-  anonymousId: "device-uuid", // Device/session identifier
-  event: "Button Clicked", // Event name
-
-  // Optional
-  userId: "user-123", // Your user identifier
-  properties: {}, // Event properties
-  address: "0x...", // Ethereum wallet address
-  context: {}, // Additional context
+const httpClient = Deno.createHttpClient({ proxy: { url: 'http://localhost:8888' } });
+const client = new SDKServerSide({
+  fetchOptions: {
+    client: httpClient,
+  },
 });
 ```
 
-### `analytics.identify(event)`
+## Frequently Asked Questions
 
-Identify a user and their traits.
+## Semantic versioning
 
-```typescript
-await analytics.identify({
-  // Required
-  anonymousId: "device-uuid", // Device/session identifier
-  userId: "user-123", // Your user identifier
+This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
 
-  // Optional
-  properties: {}, // User properties
-  address: "0x...", // Ethereum wallet address
-  context: {}, // Additional context
-});
-```
+1. Changes that only affect static types, without breaking runtime behavior.
+2. Changes to library internals which are technically public but not intended or documented for external use. _(Please open a GitHub issue to let us know if you are relying on such internals.)_
+3. Changes that we do not expect to impact the vast majority of users in practice.
 
-### `analytics.flush()`
+We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-Manually flush all pending events.
+We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/sdk-server-side-typescript/issues) with questions, bugs, or suggestions.
 
-```typescript
-// Call before process exit to ensure all events are sent
-await analytics.flush();
-```
+## Requirements
 
-## Ethereum Address Handling
+TypeScript >= 4.9 is supported.
 
-The SDK automatically validates and checksums Ethereum addresses using EIP-55:
+The following runtimes are supported:
 
-```typescript
-await analytics.track({
-  anonymousId: "device-uuid",
-  event: "Wallet Connected",
-  address: "0xab5801a7d398351b8be11c439e05c5b3259aec9b", // lowercase
-  // Stored as: 0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B (checksummed)
-});
-```
+- Web browsers (Up-to-date Chrome, Firefox, Safari, Edge, and more)
+- Node.js 20 LTS or later ([non-EOL](https://endoflife.date/nodejs)) versions.
+- Deno v1.28.0 or higher.
+- Bun 1.0 or later.
+- Cloudflare Workers.
+- Vercel Edge Runtime.
+- Jest 28 or greater with the `"node"` environment (`"jsdom"` is not supported at this time).
+- Nitro v2.6 or greater.
 
-Invalid addresses will throw a `ValidationError`.
+Note that React Native is not supported at this time.
 
-## Error Handling
+If you are interested in other runtime environments, please open or upvote an issue on GitHub.
 
-```typescript
-import { FormoAnalytics, ValidationError } from "@formo/analytics-node";
+## Contributing
 
-try {
-  await analytics.track({
-    anonymousId: "",
-    event: "Test",
-  });
-} catch (error) {
-  if (error instanceof ValidationError) {
-    console.error(`Validation failed: ${error.field} - ${error.reason}`);
-  }
-}
-```
-
-## Graceful Shutdown
-
-The SDK automatically registers handlers for `SIGTERM`, `SIGINT`, and `beforeExit` to flush pending events before process termination.
-
-For manual control:
-
-```typescript
-process.on("SIGTERM", async () => {
-  await analytics.flush();
-  process.exit(0);
-});
-```
-
-## Local Testing & Development
-
-To test SDK changes locally before publishing, you can link the SDK to another project.
-
-### Step 1: Link the SDK globally
-
-Clone this repository and link it globally:
-
-```bash
-git clone <repo-url>
-cd sdk-node
-pnpm install
-pnpm link --global
-```
-
-### Step 2: Add as dependency in your project
-
-In your backend project's `package.json`, add the SDK as a file dependency:
-
-```json
-{
-  "dependencies": {
-    "@formo/analytics-node": "file:/path/to/sdk-node"
-  }
-}
-```
-
-Replace `/path/to/sdk-node` with the absolute path to your cloned SDK directory.
-
-### Step 3: Install dependencies
-
-```bash
-cd your-backend-project
-pnpm install
-```
-
-### Step 4: Test the SDK
-
-1. Create a `.env` file in your project:
-
-```env
-FORMO_WRITE_KEY=your-write-key
-```
-
-2. Create a test script (e.g., `scripts/test-analytics.ts`) to verify the SDK works correctly:
-Below shows a sample test script:
-
-```typescript
-/**
- * Analytics SDK Test Script
- *
- * This script tests the @formo/analytics-node SDK by sending a test track event.
- *
- * Usage:
- *   pnpm run script:test-analytics
- *
- * Environment Variables Required:
- *   - FORMO_WRITE_KEY: The write key from formo.so project settings
- *
- * Or pass the write key as an argument:
- *   pnpm run script:test-analytics <writeKey>
- */
-import { config } from "dotenv";
-
-// Load environment variables
-config();
-
-async function main() {
-  console.log("🧪 Testing @formo/analytics-node SDK...\n");
-
-  // Import directly from the linked SDK source
-  const { FormoAnalytics } = await import("@formo/analytics-node");
-
-  // Get write key from argument or environment variable
-  const args = process.argv.slice(2);
-  const writeKey = args[0] || process.env.FORMO_WRITE_KEY;
-
-  if (!writeKey) {
-    console.error("❌ Error: No write key provided.");
-    console.error(
-      "   Please provide a write key as an argument or set FORMO_WRITE_KEY environment variable."
-    );
-    console.error("\n   Usage: pnpm run script:test-analytics <writeKey>");
-    process.exit(1);
-  }
-
-  console.log(`Using write key: ${writeKey.substring(0, 8)}...`);
-
-  // Initialize
-  const analytics = new FormoAnalytics(writeKey);
-
-  console.log("✅ SDK initialized successfully\n");
-
-  // Send a test track event
-  const timestamp = new Date().toISOString();
-  console.log("Sending test track event...");
-
-  analytics.track({
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    event: "SDK Backend Link Test",
-    properties: {
-      source: "formono-backend",
-      timestamp: timestamp,
-      testId: `test-${Date.now()}`,
-    },
-  });
-
-  console.log("   Event queued:", {
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    event: "SDK Backend Link Test",
-    properties: {
-      source: "formono-backend",
-      timestamp: timestamp,
-    },
-  });
-
-  // Send a test identify event
-  console.log("\nSending test identify event...");
-
-  analytics.identify({
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    userId: "test-user-backend",
-    properties: {
-      email: "test@formono-backend.local",
-      source: "formono-backend",
-      testTimestamp: timestamp,
-    },
-  });
-
-  console.log("   Identify event queued:", {
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    userId: "test-user-backend",
-    properties: {
-      email: "test@formono-backend.local",
-      source: "formono-backend",
-    },
-  });
-
-  // Flush to ensure the event is sent immediately
-  console.log("\n🔄 Flushing events...");
-
-  try {
-    await analytics.flush();
-    console.log("✅ Events flushed successfully!\n");
-    console.log("🎉 Test complete!");
-    console.log("   ➡️  Check the formo.so Activity page to verify the event");
-    console.log("   ➡️  Check Tinybird to confirm data ingestion\n");
-    process.exit(0);
-  } catch (error) {
-    console.error("❌ Error flushing events:", error);
-    process.exit(1);
-  }
-}
-
-// Run the script
-main().catch((error) => {
-  console.error("❌ Fatal error:", error);
-  process.exit(1);
-});
-```
-
-Add a script to your `package.json`:
-
-```json
-{
-  "scripts": {
-    "script:test-analytics": "ts-node ./scripts/test-analytics.ts"
-  }
-}
-```
-
-Run the test:
-
-```bash
-# Using .env file
-pnpm run script:test-analytics
-
-# Or passing as an argument
-pnpm run script:test-analytics <your-write-key>
-
-# Or passing as an environment variable
-FORMO_WRITE_KEY=<your-write-key> pnpm run script:test-analytics
-```
-
----
-
-## Development
-
-### Running Tests
-
-```bash
-# Unit tests
-pnpm test
-
-# Integration tests (requires API key)
-FORMO_WRITE_KEY=your-key pnpm run test:integration
-```
-
-### Project Structure
-
-```
-sdk-node/
-├── src/
-│   ├── FormoAnalytics.ts   # Main SDK class
-│   ├── queue/              # Event batching and retry logic
-│   ├── types/              # TypeScript type definitions
-│   ├── utils/              # Address checksumming, property normalization
-│   └── validators/         # Input validation
-├── sdks/
-│   └── sdk-server-side-typescript/  # Generated API client (Stainless)
-└── package.json
-```
+See [the contributing documentation](./CONTRIBUTING.md).

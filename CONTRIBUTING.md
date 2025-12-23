@@ -1,186 +1,93 @@
-# Contributing to Formo Node SDK
+## Setting up the environment
 
-Thank you for your interest in contributing to the Formo Node SDK! This guide will help you get started.
+This repository uses [`pnpm`](https://pnpm.io/).
+Other package managers may work but are not officially supported for development.
 
-## Table of Contents
+To set up the repository, run:
 
-- [Project Structure](#project-structure)
-- [Setting Up the Development Environment](#setting-up-the-development-environment)
-- [Stainless SDK Generation](#stainless-sdk-generation)
-- [Making Changes](#making-changes)
-- [Running Tests](#running-tests)
-- [Code Style](#code-style)
-
-## Project Structure
-
-```
-sdk-node/
-├── src/                              # Main SDK source code (manually maintained)
-│   ├── FormoAnalytics.ts             # Main SDK class
-│   ├── queue/                        # Event batching and retry logic
-│   ├── types/                        # TypeScript type definitions
-│   ├── utils/                        # Utilities (address checksumming, etc.)
-│   └── validators/                   # Input validation
-├── sdks/
-│   └── sdk-server-side-typescript/   # Generated API client (via Stainless)
-├── openapi.json                      # OpenAPI specification for the Formo API
-├── .stainless/                       # Stainless configuration
-│   ├── stainless.yml                 # Stainless SDK configuration
-│   └── workspace.json                # Stainless workspace settings
-└── package.json
+```sh
+$ pnpm install
+$ pnpm build
 ```
 
-## Setting Up the Development Environment
+This will install all the required dependencies and build output files to `dist/`.
 
-1. **Clone the repository:**
+## Modifying/Adding code
 
-   ```bash
-   git clone <repo-url>
-   cd sdk-node
-   ```
+Most of the SDK is generated code. Modifications to code will be persisted between generations, but may
+result in merge conflicts between manual patches and changes from the generator. The generator will never
+modify the contents of the `src/lib/` and `examples/` directories.
 
-2. **Install dependencies:**
+## Adding and running examples
 
-   This project uses [pnpm](https://pnpm.io/). Other package managers may work but are not officially supported.
+All files in the `examples/` directory are not modified by the generator and can be freely edited or added to.
 
-   ```bash
-   pnpm install
-   ```
+```ts
+// add an example to examples/<your-example>.ts
 
-3. **Build the project:**
-
-   ```bash
-   pnpm build
-   ```
-
-## Stainless SDK Generation
-
-This project uses [Stainless](https://www.stainless.com/) to generate type-safe API clients from our OpenAPI specification. The generated code lives in `sdks/sdk-server-side-typescript/`.
-
-### Initial Setup
-
-If you need to set up Stainless for the first time:
-
-1. **Install the Stainless CLI:**
-
-   ```bash
-   brew install stainless-api/tap/stl
-   ```
-
-2. **Initialize Stainless in your project:**
-
-   ```bash
-   stl init
-   ```
-
-   During initialization, you'll be prompted to:
-
-   - Select your OpenAPI specification file (`openapi.json`)
-   - Choose the target language(s) (TypeScript for this project)
-   - Configure output directories
-
-3. **Configuration files:**
-
-   The `.stainless/` directory is included in the repository and contains:
-
-   - `stainless.yml` - Main configuration file for SDK generation
-   - `workspace.json` - Workspace settings
-
-   Commit any changes to these files to ensure all contributors stay in sync.
-
-### Regenerating the SDK
-
-When the OpenAPI specification (`openapi.json`) or Stainless configuration (`.stainless/stainless.yml`) is updated, you need to regenerate the SDK:
-
-```bash
-# Commit your changes first
-git add .stainless/stainless.yml openapi.json
-git commit -m "Update API specification"
-
-# Create a new build on your current branch
-stl builds create --branch $(git branch --show-current)
+#!/usr/bin/env -S npm run tsn -T
+…
 ```
 
-Alternatively, use development mode to see live updates and errors:
-
-```bash
-stl dev
+```sh
+$ chmod +x examples/<your-example>.ts
+# run the example against your api
+$ pnpm tsn -T examples/<your-example>.ts
 ```
 
-This will regenerate the files in `sdks/sdk-server-side-typescript/` based on the current OpenAPI spec and Stainless configuration.
+## Using the repository from source
 
-### Modifying Generated Code
+If you’d like to use the repository from source, you can either install from git or link to a cloned repository:
 
-> **Important:** Most of the code in `sdks/sdk-server-side-typescript/` is auto-generated.
+To install via git:
 
-- Modifications to generated files may persist between generations but could result in merge conflicts.
-- The generator will **never** modify the contents of `src/lib/` and `examples/` directories within the generated SDK.
-- For custom logic, prefer adding code to the main `src/` directory rather than modifying generated files.
-
-### Updating the OpenAPI Specification
-
-When making API changes:
-
-1. Update `openapi.json` with the new endpoints, schemas, or modifications
-2. Update `.stainless/stainless.yml` if needed (e.g., new resources, methods, or examples)
-3. Validate the configuration: `stl lint`
-4. Commit your changes: `git add openapi.json .stainless/stainless.yml && git commit -m "Update API spec"`
-5. Regenerate the SDK: `stl builds create --branch $(git branch --show-current)`
-6. Test the changes thoroughly
-7. Review and commit the regenerated SDK files in `sdks/sdk-server-side-typescript/`
-
-## Making Changes
-
-### Main SDK Code (`src/`)
-
-The core SDK logic in `src/` is manually maintained:
-
-- `FormoAnalytics.ts` - Main entry point and public API
-- `queue/` - Event batching, retry logic, and graceful shutdown
-- `types/` - TypeScript interfaces and type definitions
-- `utils/` - Helper functions for address checksumming, property normalization
-- `validators/` - Input validation logic
-
-When making changes:
-
-1. Create a feature branch from `main`
-2. Make your changes with appropriate tests
-3. Ensure all tests pass: `pnpm test`
-4. Submit a pull request
-
-### Generated SDK Code (`sdks/`)
-
-ForUpdate `.stainless/stainless.yml` if adding new methods or resources 3. Validate with `stl lint` 4. Commit: `git add openapi.json .stainless/stainless.yml && git commit -m "Update API"` 5. Regenerate the SDK: `stl builds create --branch $(git branch --show-current)` 6. Test the changes 7. Review and commit the regeneratednapi.json`with the required changes
-2. Regenerate the SDK:`stainless generate` 3. Test the changes 4. Commit both files
-
-## Running Tests
-
-```bash
-# Run all tests
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run integration tests (requires API key)
-FORMO_WRITE_KEY=your-key pnpm run test:integration
+```sh
+$ npm install git+ssh://git@github.com:stainless-sdks/sdk-server-side-typescript.git
 ```
 
-## Code Style
+Alternatively, to link a local copy of the repo:
 
-This project uses:
+```sh
+# Clone
+$ git clone https://www.github.com/stainless-sdks/sdk-server-side-typescript
+$ cd sdk-server-side-typescript
 
-- [Prettier](https://prettier.io/) for code formatting
-- [ESLint](https://eslint.org/) for linting
+# With yarn
+$ yarn link
+$ cd ../my-package
+$ yarn link sdk-server-side
 
-```bash
-# Check linting
-pnpm lint
-
-# Fix linting and formatting issues
-pnpm fix
+# With pnpm
+$ pnpm link --global
+$ cd ../my-package
+$ pnpm link -—global sdk-server-side
 ```
 
-## Questions?
+## Running tests
 
-If you have questions or need help, please open an issue on GitHub.
+Most tests require you to [set up a mock server](https://github.com/stoplightio/prism) against the OpenAPI spec to run the tests.
+
+```sh
+$ npx prism mock path/to/your/openapi.yml
+```
+
+```sh
+$ pnpm run test
+```
+
+## Linting and formatting
+
+This repository uses [prettier](https://www.npmjs.com/package/prettier) and
+[eslint](https://www.npmjs.com/package/eslint) to format the code in the repository.
+
+To lint:
+
+```sh
+$ pnpm lint
+```
+
+To format and fix all lint issues automatically:
+
+```sh
+$ pnpm fix
+```
