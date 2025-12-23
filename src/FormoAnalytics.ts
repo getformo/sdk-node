@@ -64,7 +64,7 @@ export class FormoAnalytics {
 
     this.client = new SDKServerSide({
       bearerToken: writeKey,
-      environment: "environment_1", // events.formo.so
+      environment: "production", // events.formo.so
     });
 
     this.queue = new EventQueue(this.client, options);

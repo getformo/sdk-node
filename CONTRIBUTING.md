@@ -90,13 +90,24 @@ If you need to set up Stainless for the first time:
 
 ### Regenerating the SDK
 
-When the OpenAPI specification (`openapi.json`) is updated, you need to regenerate the SDK:
+When the OpenAPI specification (`openapi.json`) or Stainless configuration (`.stainless/stainless.yml`) is updated, you need to regenerate the SDK:
 
 ```bash
-stainless generate
+# Commit your changes first
+git add .stainless/stainless.yml openapi.json
+git commit -m "Update API specification"
+
+# Create a new build on your current branch
+stl builds create --branch $(git branch --show-current)
 ```
 
-This will regenerate the files in `sdks/sdk-server-side-typescript/` based on the current OpenAPI spec.
+Alternatively, use development mode to see live updates and errors:
+
+```bash
+stl dev
+```
+
+This will regenerate the files in `sdks/sdk-server-side-typescript/` based on the current OpenAPI spec and Stainless configuration.
 
 ### Modifying Generated Code
 
@@ -111,9 +122,12 @@ This will regenerate the files in `sdks/sdk-server-side-typescript/` based on th
 When making API changes:
 
 1. Update `openapi.json` with the new endpoints, schemas, or modifications
-2. Run `stainless generate` to regenerate the SDK
-3. Test the changes thoroughly
-4. Commit both the `openapi.json` changes and the regenerated SDK files
+2. Update `.stainless/stainless.yml` if needed (e.g., new resources, methods, or examples)
+3. Validate the configuration: `stl lint`
+4. Commit your changes: `git add openapi.json .stainless/stainless.yml && git commit -m "Update API spec"`
+5. Regenerate the SDK: `stl builds create --branch $(git branch --show-current)`
+6. Test the changes thoroughly
+7. Review and commit the regenerated SDK files in `sdks/sdk-server-side-typescript/`
 
 ## Making Changes
 
@@ -136,12 +150,8 @@ When making changes:
 
 ### Generated SDK Code (`sdks/`)
 
-For changes to the generated API client:
-
-1. Update `openapi.json` with the required changes
-2. Regenerate the SDK: `stainless generate`
-3. Test the changes
-4. Commit both files
+ForUpdate `.stainless/stainless.yml` if adding new methods or resources 3. Validate with `stl lint` 4. Commit: `git add openapi.json .stainless/stainless.yml && git commit -m "Update API"` 5. Regenerate the SDK: `stl builds create --branch $(git branch --show-current)` 6. Test the changes 7. Review and commit the regeneratednapi.json`with the required changes
+2. Regenerate the SDK:`stainless generate` 3. Test the changes 4. Commit both files
 
 ## Running Tests
 

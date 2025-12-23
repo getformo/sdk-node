@@ -8,9 +8,9 @@ edition: 2025-10-10
 organization:
   # Name of your organization or company, used to determine the name of the client
   # and headings.
-  name: sdk-server-side
+  name: Formo
   # Link to your API documentation.
-  docs: ''
+  docs: 'https://docs.formo.so'
   # Contact email for bug reports, questions, and support requests.
   contact: ''
 
@@ -22,7 +22,7 @@ targets:
     #
     # [docs]: https://www.stainless.com/docs/reference/editions
     edition: typescript.2025-10-10
-    package_name: sdk-server-side
+    package_name: '@formo/sdk-server-side'
     production_repo: null
     publish:
       npm: false
@@ -30,8 +30,7 @@ targets:
 # `environments` are a map of the name of the environment (e.g. "sandbox",
 # "production") to the corresponding url to use.
 environments:
-  production: https://api.formo.so/api
-  environment_1: https://events.formo.so
+  production: https://events.formo.so
 
 # `resources` define the structure and organization for your API, such as how
 # methods and models are grouped together and accessed. See the [configuration
@@ -39,20 +38,10 @@ environments:
 #
 # [configuration guide]: https://www.stainless.com/docs/guides/configure#resources
 resources:
-  webhooks:
-    # Configure the methods defined in this resource. Each key in the object is the
-    # name of the method and the value is either an endpoint (for example, `get /foo`)
-    # or an object with more detail.
-    #
-    # [reference]: https://www.stainless.com/docs/reference/config#method
-    methods:
-      list_form_responses: get /webhooks/{formId}/poll
-      subscribe_to_form_events: post /webhooks
-      unsubscribe_from_form_events: delete /webhooks
-
-  events:
+  raw_events:
     methods:
       track: post /v0/raw_events
+      identify: post /v0/raw_events
     models:
       event: "#/components/schemas/Event"
 
@@ -62,26 +51,9 @@ settings:
   # doing so may result in test failures due to bugs in the test server.
   #
   # [prism mock http server]: https://stoplight.io/open-source/prism
+
   disable_mock_tests: true
   license: Apache-2.0
-
-# `client_settings` define settings for the API client, such as extra constructor
-# arguments (used for authentication), retry behavior, idempotency, etc.
-client_settings:
-  opts:
-    api_key:
-      type: string
-      nullable: true
-      auth:
-        security_scheme: ApiKeyAuth
-      read_env: SDK_SERVER_SIDE_API_KEY
-    bearer_token:
-      type: string
-      nullable: true
-      auth:
-        security_scheme: BearerAuth
-      description: "JWT Bearer token for authentication. Format: 'Bearer <token>'"
-      read_env: SDK_SERVER_SIDE_BEARER_TOKEN
 
 security:
   - ApiKeyAuth: []
@@ -94,11 +66,42 @@ readme:
   example_requests:
     default:
       type: request
-      endpoint: get /webhooks/{formId}/poll
+      endpoint: post /v0/raw_events
       params:
-        formId: REPLACE_ME
+        type: track
+        channel: server
+        version: '0'
+        anonymous_id: user-device-uuid-123
+        user_id: user-abc-456
+        event: Purchase Completed
+        properties:
+          product_id: prod_123
+          amount: 99.99
+          currency: USD
+        context:
+          library_name: Formo Node SDK
+          library_version: 1.0.0
+        address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+        original_timestamp: '2025-12-23T10:00:00.000Z'
+        sent_at: '2025-12-23T10:00:00.000Z'
+        message_id: event-uuid-789
     headline:
       type: request
-      endpoint: get /webhooks/{formId}/poll
+      endpoint: post /v0/raw_events
       params:
-        formId: REPLACE_ME
+        type: identify
+        channel: server
+        version: '0'
+        anonymous_id: user-device-uuid-123
+        user_id: user-abc-456
+        properties:
+          email: user@example.com
+          name: John Doe
+          plan: premium
+        context:
+          library_name: Formo Node SDK
+          library_version: 1.0.0
+        address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+        original_timestamp: '2025-12-23T10:00:00.000Z'
+        sent_at: '2025-12-23T10:00:00.000Z'
+        message_id: event-uuid-790
