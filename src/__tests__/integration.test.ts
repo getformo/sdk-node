@@ -13,6 +13,7 @@
  */
 
 import { FormoAnalytics, ValidationError } from "../FormoAnalytics";
+import { randomUUID } from "crypto";
 
 // Skip all integration tests by default
 // Change to `describe` to run, or use: FORMO_WRITE_KEY=xxx pnpm run test:integration
@@ -32,9 +33,8 @@ const getWriteKey = (): string => {
   return key;
 };
 
-// Generate unique test identifiers with TEST_SDK_NODE prefix for easy identification
-const generateTestId = () =>
-  `TEST_SDK_NODE-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+// Generate a valid UUID for testing
+const generateTestId = () => randomUUID();
 
 integrationDescribe("FormoAnalytics Integration Tests", () => {
   let analytics: FormoAnalytics;
@@ -130,7 +130,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
         analytics.identify({
           anonymousId: testId,
           userId: `user-${testId}`,
-          traits: {
+          properties: {
             email: `test-${testId}@example.com`,
             name: "Integration Test User",
             plan: "test",
@@ -148,7 +148,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
           anonymousId: testId,
           userId: `user-${testId}`,
           address: "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
-          traits: {
+          properties: {
             walletConnected: true,
           },
         })
@@ -157,6 +157,23 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
   });
 
   describe("Validation (still enforced in integration)", () => {
+    test("rejects track with invalid anonymousId format", async () => {
+      await expect(
+        analytics.track({
+          anonymousId: "not-a-uuid",
+          event: "Test Event",
+        })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    test("successfully tracks with auto-generated anonymousId", async () => {
+      await expect(
+        analytics.track({
+          event: "Integration Test - Auto ID",
+        })
+      ).resolves.toBeUndefined();
+    });
+
     test("rejects track with empty event name", async () => {
       await expect(
         analytics.track({
@@ -284,7 +301,7 @@ if (require.main === module) {
       await analytics.identify({
         anonymousId: testId,
         userId: `manual-test-user-${testId}`,
-        traits: {
+        properties: {
           source: "manual-test",
         },
       });

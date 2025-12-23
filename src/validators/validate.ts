@@ -7,6 +7,7 @@ import {
   isObject,
   isAddress,
   isNullOrUndefined,
+  isUUID,
 } from "./index";
 import type { TrackAPIEvent, IdentifyAPIEvent } from "../types";
 
@@ -32,15 +33,15 @@ export class ValidationError extends Error {
  *
  * @example
  * validateTrackEvent({
- *   anonymousId: "device-123",
+ *   anonymousId: "00000000-0000-0000-0000-000000000000",
  *   event: "Button Clicked",
  *   properties: { buttonId: "cta" }
  * });
  */
 export function validateTrackEvent(event: TrackAPIEvent): void {
-  // Required: anonymousId must be a non-empty string
-  if (!isNonEmptyString(event.anonymousId)) {
-    throw new ValidationError("anonymousId", "must be a non-empty string");
+  // Optional: anonymousId must be a valid UUID if provided
+  if (!isNullOrUndefined(event.anonymousId) && !isUUID(event.anonymousId)) {
+    throw new ValidationError("anonymousId", "must be a valid UUID");
   }
 
   // Required: event must be a non-empty string
@@ -83,15 +84,15 @@ export function validateTrackEvent(event: TrackAPIEvent): void {
  *
  * @example
  * validateIdentifyEvent({
- *   anonymousId: "device-123",
+ *   anonymousId: "00000000-0000-0000-0000-000000000000",
  *   userId: "user-456",
- *   traits: { email: "user@example.com" }
+ *   properties: { email: "user@example.com" }
  * });
  */
 export function validateIdentifyEvent(event: IdentifyAPIEvent): void {
-  // Required: anonymousId must be a non-empty string
-  if (!isNonEmptyString(event.anonymousId)) {
-    throw new ValidationError("anonymousId", "must be a non-empty string");
+  // Optional: anonymousId must be a valid UUID if provided
+  if (!isNullOrUndefined(event.anonymousId) && !isUUID(event.anonymousId)) {
+    throw new ValidationError("anonymousId", "must be a valid UUID");
   }
 
   // Required: userId must be a non-empty string
@@ -99,9 +100,9 @@ export function validateIdentifyEvent(event: IdentifyAPIEvent): void {
     throw new ValidationError("userId", "must be a non-empty string");
   }
 
-  // Optional: traits must be an object if provided
-  if (!isNullOrUndefined(event.traits) && !isObject(event.traits)) {
-    throw new ValidationError("traits", "must be an object if provided");
+  // Optional: properties must be an object if provided
+  if (!isNullOrUndefined(event.properties) && !isObject(event.properties)) {
+    throw new ValidationError("properties", "must be an object if provided");
   }
 
   // Optional: context must be an object if provided

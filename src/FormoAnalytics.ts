@@ -40,9 +40,8 @@ export { ValidationError } from "./validators";
  *
  * // Identify a user
  * await analytics.identify({
- *   anonymousId: "device-uuid",
  *   userId: "user-123",
- *   traits: { email: "user@example.com", plan: "premium" }
+ *   properties: { email: "user@example.com", plan: "premium" }
  * });
  *
  * // Flush pending events before shutdown
@@ -65,7 +64,7 @@ export class FormoAnalytics {
 
     this.client = new SDKServerSide({
       bearerToken: writeKey,
-      environment: "environment_1", // events.formo.so
+      environment: "production", // events.formo.so
     });
 
     this.queue = new EventQueue(this.client, options);
@@ -75,8 +74,8 @@ export class FormoAnalytics {
    * Track a custom event
    *
    * @param event - Track event
-   * @param event.anonymousId - Required. Device/session identifier
    * @param event.event - Required. Event name
+   * @param event.anonymousId - Optional. Device/session identifier (generated if not provided)
    * @param event.userId - Optional. Your user identifier
    * @param event.properties - Optional. Event properties
    * @param event.address - Optional. Ethereum wallet address
@@ -85,6 +84,11 @@ export class FormoAnalytics {
    * @throws ValidationError if options are invalid
    */
   async track(event: TrackAPIEvent): Promise<void> {
+    // Auto-generate anonymousId if not provided
+    if (!event.anonymousId) {
+      event.anonymousId = randomUUID();
+    }
+
     // Validate inputs before queuing
     validateTrackEvent(event);
 
@@ -95,7 +99,7 @@ export class FormoAnalytics {
       type: "track",
       channel: "server",
       version: VERSION,
-      anonymous_id: event.anonymousId,
+      anonymous_id: event.anonymousId!,
       user_id: event.userId ?? null,
       event: event.event,
       properties: normalizeTrackProperties(event.properties),
@@ -115,15 +119,20 @@ export class FormoAnalytics {
    * Identify a user
    *
    * @param event - Identify event
-   * @param event.anonymousId - Required. Device/session identifier
    * @param event.userId - Required. Your user identifier
-   * @param event.traits - Optional. User traits/properties
+   * @param event.anonymousId - Optional. Device/session identifier (generated if not provided)
+   * @param event.properties - Optional. User traits/properties
    * @param event.address - Optional. Ethereum wallet address
    * @param event.context - Optional. Additional context
    *
    * @throws ValidationError if options are invalid
    */
   async identify(event: IdentifyAPIEvent): Promise<void> {
+    // Auto-generate anonymousId if not provided
+    if (!event.anonymousId) {
+      event.anonymousId = randomUUID();
+    }
+
     // Validate inputs before queuing
     validateIdentifyEvent(event);
 
@@ -134,9 +143,9 @@ export class FormoAnalytics {
       type: "identify",
       channel: "server",
       version: VERSION,
-      anonymous_id: event.anonymousId,
+      anonymous_id: event.anonymousId!,
       user_id: event.userId,
-      properties: event.traits ?? {},
+      properties: event.properties ?? {},
       context: {
         library_name: LIBRARY_NAME,
         library_version: LIBRARY_VERSION,

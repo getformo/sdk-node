@@ -8,14 +8,12 @@ export type Address = string;
 export type IFormoEventProperties = Record<string, unknown>;
 export type IFormoEventContext = Record<string, unknown>;
 
-export type UserTraits = Record<string, unknown>;
-
 export interface TrackAPIEvent {
   // Required.
-  anonymousId: string; // Device/session identifier for anonymous tracking
   event: string; // Name of the event being tracked
 
   // Optional
+  anonymousId?: string; // Device/session identifier for anonymous tracking
   userId?: string;
   properties?: IFormoEventProperties; // custom properties
   context?: IFormoEventContext; // contextual information
@@ -24,11 +22,11 @@ export interface TrackAPIEvent {
 
 export interface IdentifyAPIEvent {
   // Required.
-  anonymousId: string; // Device/session identifier for anonymous tracking
   userId: string; // Your application's user identifier
 
   // Optional
-  traits?: UserTraits; // User traits/properties
+  anonymousId?: string; // Device/session identifier for anonymous tracking
+  properties?: IFormoEventProperties; // User properties
   address?: Address; // Ethereum wallet address (validated and checksummed)
   context?: IFormoEventContext; // contextual information
 }

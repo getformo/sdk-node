@@ -3,6 +3,7 @@
 import { EventQueue, QueueOptions } from "./EventQueue";
 import { SDKServerSide } from "../../sdks/sdk-server-side-typescript";
 import { IFormoEvent } from "./type";
+import { randomUUID } from "crypto";
 
 // Mock the SDKServerSide client
 const createMockClient = (
@@ -17,10 +18,10 @@ const createMockClient = (
 
 // Create a minimal valid event payload
 const createEvent = (overrides: Partial<IFormoEvent> = {}): IFormoEvent => ({
-  anonymous_id: `anon-${Date.now()}-${Math.random()}`,
+  anonymous_id: randomUUID(),
   channel: "server",
   context: {},
-  message_id: `msg-${Date.now()}-${Math.random()}`,
+  message_id: randomUUID(),
   original_timestamp: new Date().toISOString(),
   sent_at: new Date().toISOString(),
   type: "track",
