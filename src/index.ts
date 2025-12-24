@@ -1,12 +1,12 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-export { SDKServerSide as default } from './client';
+export { Formo as default } from './client';
 
 export { type Uploadable, toFile } from './core/uploads';
 export { APIPromise } from './core/api-promise';
-export { SDKServerSide, type ClientOptions } from './client';
+export { Formo, type ClientOptions } from './client';
 export {
-  SDKServerSideError,
+  FormoError,
   APIError,
   APIConnectionError,
   APIConnectionTimeoutError,

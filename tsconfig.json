@@ -8,8 +8,8 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "paths": {
-      "sdk-server-side/*": ["./src/*"],
-      "sdk-server-side": ["./src/index.ts"]
+      "@formo/sdk-server-side/*": ["./src/*"],
+      "@formo/sdk-server-side": ["./src/index.ts"]
     },
     "noEmit": true,
 

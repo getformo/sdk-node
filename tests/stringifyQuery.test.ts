@@ -1,8 +1,8 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { SDKServerSide } from 'sdk-server-side';
+import { Formo } from '@formo/sdk-server-side';
 
-const { stringifyQuery } = SDKServerSide.prototype as any;
+const { stringifyQuery } = Formo.prototype as any;
 
 describe(stringifyQuery, () => {
   for (const [input, expected] of [
