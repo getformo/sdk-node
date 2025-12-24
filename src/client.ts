@@ -16,15 +16,16 @@ import * as Errors from './core/error';
 import * as Uploads from './core/uploads';
 import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
-import { RawEventTrackParams, RawEventTrackResponse, RawEvents } from './resources/raw-events';
 import {
-  WebhookListFormResponsesResponse,
-  WebhookSubscribeToFormEventsParams,
-  WebhookSubscribeToFormEventsResponse,
-  WebhookUnsubscribeFromFormEventsParams,
-  WebhookUnsubscribeFromFormEventsResponse,
-  Webhooks,
-} from './resources/webhooks';
+  Event,
+  EventContext,
+  EventProperties,
+  RawEventIdentifyParams,
+  RawEventIdentifyResponse,
+  RawEventTrackParams,
+  RawEventTrackResponse,
+  RawEvents,
+} from './resources/raw-events';
 import { type Fetch } from './internal/builtin-types';
 import { HeadersLike, NullableHeaders, buildHeaders } from './internal/headers';
 import { FinalRequestOptions, RequestOptions } from './internal/request-options';
@@ -38,36 +39,16 @@ import {
 } from './internal/utils/log';
 import { isEmptyObj } from './internal/utils/values';
 
-const environments = {
-  production: 'https://api.formo.so/api',
-  environment_1: 'https://events.formo.so',
-};
-type Environment = keyof typeof environments;
-
 export interface ClientOptions {
   /**
-   * Defaults to process.env['SDK_SERVER_SIDE_API_KEY'].
+   * Defaults to process.env['FORMO_API_KEY'].
    */
-  apiKey?: string | null | undefined;
-
-  /**
-   * JWT Bearer token for authentication. Format: 'Bearer <token>'
-   */
-  bearerToken?: string | null | undefined;
-
-  /**
-   * Specifies the environment to use for the API.
-   *
-   * Each environment maps to a different base URL:
-   * - `production` corresponds to `https://api.formo.so/api`
-   * - `environment_1` corresponds to `https://events.formo.so`
-   */
-  environment?: Environment | undefined;
+  apiKey?: string | undefined;
 
   /**
    * Override the default base URL for the API, e.g., "https://api.example.com/v2/"
    *
-   * Defaults to process.env['SDK_SERVER_SIDE_BASE_URL'].
+   * Defaults to process.env['FORMO_BASE_URL'].
    */
   baseURL?: string | null | undefined;
 
@@ -121,7 +102,7 @@ export interface ClientOptions {
   /**
    * Set the log level.
    *
-   * Defaults to process.env['SDK_SERVER_SIDE_LOG'] or 'warn' if it isn't set.
+   * Defaults to process.env['FORMO_LOG'] or 'warn' if it isn't set.
    */
   logLevel?: LogLevel | undefined;
 
@@ -134,11 +115,10 @@ export interface ClientOptions {
 }
 
 /**
- * API Client for interfacing with the SDK Server Side API.
+ * API Client for interfacing with the Formo API.
  */
-export class SDKServerSide {
-  apiKey: string | null;
-  bearerToken: string | null;
+export class Formo {
+  apiKey: string;
 
   baseURL: string;
   maxRetries: number;
@@ -153,12 +133,10 @@ export class SDKServerSide {
   private _options: ClientOptions;
 
   /**
-   * API Client for interfacing with the SDK Server Side API.
+   * API Client for interfacing with the Formo API.
    *
-   * @param {string | null | undefined} [opts.apiKey=process.env['SDK_SERVER_SIDE_API_KEY'] ?? null]
-   * @param {string | null | undefined} [opts.bearerToken=process.env['SDK_SERVER_SIDE_BEARER_TOKEN'] ?? null]
-   * @param {Environment} [opts.environment=production] - Specifies the environment URL to use for the API.
-   * @param {string} [opts.baseURL=process.env['SDK_SERVER_SIDE_BASE_URL'] ?? https://api.formo.so/api] - Override the default base URL for the API.
+   * @param {string | undefined} [opts.apiKey=process.env['FORMO_API_KEY'] ?? undefined]
+   * @param {string} [opts.baseURL=process.env['FORMO_BASE_URL'] ?? https://events.formo.so] - Override the default base URL for the API.
    * @param {number} [opts.timeout=1 minute] - The maximum amount of time (in milliseconds) the client will wait for a response before timing out.
    * @param {MergedRequestInit} [opts.fetchOptions] - Additional `RequestInit` options to be passed to `fetch` calls.
    * @param {Fetch} [opts.fetch] - Specify a custom `fetch` function implementation.
@@ -167,34 +145,31 @@ export class SDKServerSide {
    * @param {Record<string, string | undefined>} opts.defaultQuery - Default query parameters to include with every request to the API.
    */
   constructor({
-    baseURL = readEnv('SDK_SERVER_SIDE_BASE_URL'),
-    apiKey = readEnv('SDK_SERVER_SIDE_API_KEY') ?? null,
-    bearerToken = readEnv('SDK_SERVER_SIDE_BEARER_TOKEN') ?? null,
+    baseURL = readEnv('FORMO_BASE_URL'),
+    apiKey = readEnv('FORMO_API_KEY'),
     ...opts
   }: ClientOptions = {}) {
-    const options: ClientOptions = {
-      apiKey,
-      bearerToken,
-      ...opts,
-      baseURL,
-      environment: opts.environment ?? 'production',
-    };
-
-    if (baseURL && opts.environment) {
-      throw new Errors.SDKServerSideError(
-        'Ambiguous URL; The `baseURL` option (or SDK_SERVER_SIDE_BASE_URL env var) and the `environment` option are given. If you want to use the environment you must pass baseURL: null',
+    if (apiKey === undefined) {
+      throw new Errors.FormoError(
+        "The FORMO_API_KEY environment variable is missing or empty; either provide it, or instantiate the Formo client with an apiKey option, like new Formo({ apiKey: 'My API Key' }).",
       );
     }
 
-    this.baseURL = options.baseURL || environments[options.environment || 'production'];
-    this.timeout = options.timeout ?? SDKServerSide.DEFAULT_TIMEOUT /* 1 minute */;
+    const options: ClientOptions = {
+      apiKey,
+      ...opts,
+      baseURL: baseURL || `https://events.formo.so`,
+    };
+
+    this.baseURL = options.baseURL!;
+    this.timeout = options.timeout ?? Formo.DEFAULT_TIMEOUT /* 1 minute */;
     this.logger = options.logger ?? console;
     const defaultLogLevel = 'warn';
     // Set default logLevel early so that we can log a warning in parseLogLevel.
     this.logLevel = defaultLogLevel;
     this.logLevel =
       parseLogLevel(options.logLevel, 'ClientOptions.logLevel', this) ??
-      parseLogLevel(readEnv('SDK_SERVER_SIDE_LOG'), "process.env['SDK_SERVER_SIDE_LOG']", this) ??
+      parseLogLevel(readEnv('FORMO_LOG'), "process.env['FORMO_LOG']", this) ??
       defaultLogLevel;
     this.fetchOptions = options.fetchOptions;
     this.maxRetries = options.maxRetries ?? 2;
@@ -204,7 +179,6 @@ export class SDKServerSide {
     this._options = options;
 
     this.apiKey = apiKey;
-    this.bearerToken = bearerToken;
   }
 
   /**
@@ -213,8 +187,7 @@ export class SDKServerSide {
   withOptions(options: Partial<ClientOptions>): this {
     const client = new (this.constructor as any as new (props: ClientOptions) => typeof this)({
       ...this._options,
-      environment: options.environment ? options.environment : undefined,
-      baseURL: options.environment ? undefined : this.baseURL,
+      baseURL: this.baseURL,
       maxRetries: this.maxRetries,
       timeout: this.timeout,
       logger: this.logger,
@@ -222,7 +195,6 @@ export class SDKServerSide {
       fetch: this.fetch,
       fetchOptions: this.fetchOptions,
       apiKey: this.apiKey,
-      bearerToken: this.bearerToken,
       ...options,
     });
     return client;
@@ -232,7 +204,7 @@ export class SDKServerSide {
    * Check whether the base URL is set to its default.
    */
   #baseURLOverridden(): boolean {
-    return this.baseURL !== environments[this._options.environment || 'production'];
+    return this.baseURL !== 'https://events.formo.so';
   }
 
   protected defaultQuery(): Record<string, string | undefined> | undefined {
@@ -240,41 +212,11 @@ export class SDKServerSide {
   }
 
   protected validateHeaders({ values, nulls }: NullableHeaders) {
-    if (this.apiKey && values.get('x-api-key')) {
-      return;
-    }
-    if (nulls.has('x-api-key')) {
-      return;
-    }
-
-    if (this.bearerToken && values.get('authorization')) {
-      return;
-    }
-    if (nulls.has('authorization')) {
-      return;
-    }
-
-    throw new Error(
-      'Could not resolve authentication method. Expected either apiKey or bearerToken to be set. Or for one of the "x-api-key" or "Authorization" headers to be explicitly omitted',
-    );
+    return;
   }
 
   protected async authHeaders(opts: FinalRequestOptions): Promise<NullableHeaders | undefined> {
-    return buildHeaders([await this.apiKeyAuth(opts), await this.bearerAuth(opts)]);
-  }
-
-  protected async apiKeyAuth(opts: FinalRequestOptions): Promise<NullableHeaders | undefined> {
-    if (this.apiKey == null) {
-      return undefined;
-    }
-    return buildHeaders([{ 'x-api-key': this.apiKey }]);
-  }
-
-  protected async bearerAuth(opts: FinalRequestOptions): Promise<NullableHeaders | undefined> {
-    if (this.bearerToken == null) {
-      return undefined;
-    }
-    return buildHeaders([{ Authorization: `Bearer ${this.bearerToken}` }]);
+    return buildHeaders([{ Authorization: `Bearer ${this.apiKey}` }]);
   }
 
   /**
@@ -290,7 +232,7 @@ export class SDKServerSide {
         if (value === null) {
           return `${encodeURIComponent(key)}=`;
         }
-        throw new Errors.SDKServerSideError(
+        throw new Errors.FormoError(
           `Cannot stringify type ${typeof value}; Expected string, number, boolean, or null. If you need to pass nested query parameters, you can manually encode them, e.g. { query: { 'foo[key1]': value1, 'foo[key2]': value2 } }, and please open a GitHub issue requesting better support for your use case.`,
         );
       })
@@ -762,10 +704,10 @@ export class SDKServerSide {
     }
   }
 
-  static SDKServerSide = this;
+  static Formo = this;
   static DEFAULT_TIMEOUT = 60000; // 1 minute
 
-  static SDKServerSideError = Errors.SDKServerSideError;
+  static FormoError = Errors.FormoError;
   static APIError = Errors.APIError;
   static APIConnectionError = Errors.APIConnectionError;
   static APIConnectionTimeoutError = Errors.APIConnectionTimeoutError;
@@ -781,28 +723,22 @@ export class SDKServerSide {
 
   static toFile = Uploads.toFile;
 
-  webhooks: API.Webhooks = new API.Webhooks(this);
   rawEvents: API.RawEvents = new API.RawEvents(this);
 }
 
-SDKServerSide.Webhooks = Webhooks;
-SDKServerSide.RawEvents = RawEvents;
+Formo.RawEvents = RawEvents;
 
-export declare namespace SDKServerSide {
+export declare namespace Formo {
   export type RequestOptions = Opts.RequestOptions;
 
   export {
-    Webhooks as Webhooks,
-    type WebhookListFormResponsesResponse as WebhookListFormResponsesResponse,
-    type WebhookSubscribeToFormEventsResponse as WebhookSubscribeToFormEventsResponse,
-    type WebhookUnsubscribeFromFormEventsResponse as WebhookUnsubscribeFromFormEventsResponse,
-    type WebhookSubscribeToFormEventsParams as WebhookSubscribeToFormEventsParams,
-    type WebhookUnsubscribeFromFormEventsParams as WebhookUnsubscribeFromFormEventsParams,
-  };
-
-  export {
     RawEvents as RawEvents,
+    type Event as Event,
+    type EventContext as EventContext,
+    type EventProperties as EventProperties,
+    type RawEventIdentifyResponse as RawEventIdentifyResponse,
     type RawEventTrackResponse as RawEventTrackResponse,
+    type RawEventIdentifyParams as RawEventIdentifyParams,
     type RawEventTrackParams as RawEventTrackParams,
   };
 }

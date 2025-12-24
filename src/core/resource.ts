@@ -1,11 +1,11 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import type { SDKServerSide } from '../client';
+import type { Formo } from '../client';
 
 export abstract class APIResource {
-  protected _client: SDKServerSide;
+  protected _client: Formo;
 
-  constructor(client: SDKServerSide) {
+  constructor(client: Formo) {
     this._client = client;
   }
 }

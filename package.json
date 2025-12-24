@@ -1,8 +1,8 @@
 {
-  "name": "sdk-server-side",
+  "name": "@formo/sdk-server-side",
   "version": "0.0.1",
-  "description": "The official TypeScript library for the SDK Server Side API",
-  "author": "SDK Server Side <>",
+  "description": "The official TypeScript library for the Formo API",
+  "author": "Formo <>",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "type": "commonjs",

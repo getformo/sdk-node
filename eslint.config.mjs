@@ -25,7 +25,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              regex: '^sdk-server-side(/.*)?',
+              regex: '^@formo/sdk-server-side(/.*)?',
               message: 'Use a relative import, not a package import.',
             },
           ],

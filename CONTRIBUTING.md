@@ -55,12 +55,12 @@ $ cd sdk-server-side-typescript
 # With yarn
 $ yarn link
 $ cd ../my-package
-$ yarn link sdk-server-side
+$ yarn link @formo/sdk-server-side
 
 # With pnpm
 $ pnpm link --global
 $ cd ../my-package
-$ pnpm link -—global sdk-server-side
+$ pnpm link -—global @formo/sdk-server-side
 ```
 
 ## Running tests

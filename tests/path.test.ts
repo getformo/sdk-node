@@ -1,4 +1,4 @@
-import { createPathTagFunction, encodeURIPath } from 'sdk-server-side/internal/utils/path';
+import { createPathTagFunction, encodeURIPath } from '@formo/sdk-server-side/internal/utils/path';
 import { inspect } from 'node:util';
 import { runInNewContext } from 'node:vm';
 

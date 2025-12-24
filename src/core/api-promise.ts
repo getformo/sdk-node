@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { type SDKServerSide } from '../client';
+import { type Formo } from '../client';
 
 import { type PromiseOrValue } from '../internal/types';
 import { APIResponseProps, defaultParseResponse } from '../internal/parse';
@@ -11,13 +11,13 @@ import { APIResponseProps, defaultParseResponse } from '../internal/parse';
  */
 export class APIPromise<T> extends Promise<T> {
   private parsedPromise: Promise<T> | undefined;
-  #client: SDKServerSide;
+  #client: Formo;
 
   constructor(
-    client: SDKServerSide,
+    client: Formo,
     private responsePromise: Promise<APIResponseProps>,
     private parseResponse: (
-      client: SDKServerSide,
+      client: Formo,
       props: APIResponseProps,
     ) => PromiseOrValue<T> = defaultParseResponse,
   ) {
