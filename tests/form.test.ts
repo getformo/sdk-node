@@ -1,5 +1,5 @@
-import { multipartFormRequestOptions, createForm } from '@formo/sdk-server-side/internal/uploads';
-import { toFile } from '@formo/sdk-server-side/core/uploads';
+import { multipartFormRequestOptions, createForm } from '@formo/analytics-node/internal/uploads';
+import { toFile } from '@formo/analytics-node/core/uploads';
 
 describe('form data validation', () => {
   test('valid values do not error', async () => {

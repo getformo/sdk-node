@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { Formo } from '@formo/sdk-server-side';
+import { Formo } from '@formo/analytics-node';
 
 const { stringifyQuery } = Formo.prototype as any;
 

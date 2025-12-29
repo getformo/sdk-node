@@ -1,12 +1,12 @@
 {
-  "name": "@formo/sdk-server-side",
+  "name": "@formo/analytics-node",
   "version": "0.0.1",
   "description": "The official TypeScript library for the Formo API",
   "author": "Formo <>",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "type": "commonjs",
-  "repository": "github:stainless-sdks/sdk-server-side-typescript",
+  "repository": "github:getformo/sdk-node",
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.24.0",
   "files": [

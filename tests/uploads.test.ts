@@ -1,6 +1,6 @@
 import fs from 'fs';
-import type { ResponseLike } from '@formo/sdk-server-side/internal/to-file';
-import { toFile } from '@formo/sdk-server-side/core/uploads';
+import type { ResponseLike } from '@formo/analytics-node/internal/to-file';
+import { toFile } from '@formo/analytics-node/core/uploads';
 import { File } from 'node:buffer';
 
 class MyClass {
@@ -97,7 +97,7 @@ describe('missing File error message', () => {
   });
 
   test('is thrown', async () => {
-    const uploads = await import('@formo/sdk-server-side/core/uploads');
+    const uploads = await import('@formo/analytics-node/core/uploads');
     await expect(
       uploads.toFile(mockResponse({ url: 'https://example.com/my/audio.mp3' })),
     ).rejects.toMatchInlineSnapshot(

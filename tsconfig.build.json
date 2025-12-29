@@ -5,8 +5,8 @@
   "compilerOptions": {
     "rootDir": "./dist/src",
     "paths": {
-      "@formo/sdk-server-side/*": ["./dist/src/*"],
-      "@formo/sdk-server-side": ["./dist/src/index.ts"]
+      "@formo/analytics-node/*": ["./dist/src/*"],
+      "@formo/analytics-node": ["./dist/src/index.ts"]
     },
     "noEmit": false,
     "declaration": true,

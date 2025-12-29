@@ -7,8 +7,8 @@ const config: JestConfigWithTsJest = {
     '^.+\\.(t|j)sx?$': ['@swc/jest', { sourceMaps: 'inline' }],
   },
   moduleNameMapper: {
-    '^@formo/sdk-server-side$': '<rootDir>/src/index.ts',
-    '^@formo/sdk-server-side/(.*)$': '<rootDir>/src/$1',
+    '^@formo/analytics-node$': '<rootDir>/src/index.ts',
+    '^@formo/analytics-node/(.*)$': '<rootDir>/src/$1',
   },
   modulePathIgnorePatterns: [
     '<rootDir>/ecosystem-tests/',
