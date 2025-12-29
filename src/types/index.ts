@@ -38,3 +38,56 @@ export interface AnalyticsOptions {
   maxQueueSize?: number; // Flush when queue > N bytes (default: 500KB)
   retryCount?: number; // Retry failed requests N times (default: 3)
 }
+
+// ============================================
+// Internal Types (for EventQueue)
+// ============================================
+
+export type EventChannel = "web" | "mobile" | "server";
+
+export type EventType =
+  | "identify"
+  | "track";
+  // | "page"
+  // | "connect"
+  // | "disconnect"
+  // | "detect"
+  // | "chain"
+  // | "signature"
+  // | "transaction";
+
+/**
+ * Contextual information about the event
+ */
+export interface EventContext {
+  library_name?: string;
+  library_version?: string;
+  // Additional context fields can be added
+  [key: string]: unknown;
+}
+
+/**
+ * Internal event payload sent to the API
+ */
+export interface IFormoEvent {
+  anonymous_id: string;
+  channel: EventChannel;
+  context: EventContext;
+  message_id: string;
+  original_timestamp: string;
+  sent_at: string;
+  type: EventType;
+  version: string;
+  address?: string | null;
+  event?: string;
+  properties?: IFormoEventProperties;
+  user_id?: string | null;
+}
+
+/**
+ * API response from raw_events endpoint
+ */
+export interface FormoEventResponse {
+  quarantined_rows?: number;
+  successful_rows?: number;
+}

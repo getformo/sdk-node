@@ -1,4 +1,3 @@
-import Formo from "../sdks/sdk-server-side-typescript";
 import { randomUUID } from "crypto";
 import {
   TrackAPIEvent,
@@ -49,7 +48,6 @@ export { ValidationError } from "./validators";
  * ```
  */
 export class FormoAnalytics {
-  private client: Formo;
   private queue: EventQueue;
 
   /**
@@ -57,17 +55,15 @@ export class FormoAnalytics {
    * @param writeKey - Your Formo project write key
    * @param options - Optional configuration
    */
-  constructor(writeKey: string, options: AnalyticsOptions = {}) {
+  constructor(
+    public readonly writeKey: string,
+    options: AnalyticsOptions = {}
+  ) {
     if (!writeKey || typeof writeKey !== "string") {
       throw new Error("writeKey is required and must be a string");
     }
 
-    this.client = new Formo({
-      apiKey: writeKey,
-      // baseURL defaults to https://events.formo.so
-    });
-
-    this.queue = new EventQueue(this.client, options);
+    this.queue = new EventQueue(writeKey, options);
   }
 
   /**

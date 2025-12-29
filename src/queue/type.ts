@@ -1,8 +1,8 @@
-import { RawEventTrackParams } from "../../sdks/sdk-server-side-typescript/src/resources/raw-events";
+import { IFormoEvent } from "../types";
 
-export type IFormoEvent = RawEventTrackParams;
+export type { IFormoEvent };
 
-// event queue interface
+// Event queue interface
 export interface IEventQueue {
   enqueue(
     event: IFormoEvent,

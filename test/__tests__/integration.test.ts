@@ -12,8 +12,10 @@
  * - Slow test runs during development
  */
 
-import { FormoAnalytics, ValidationError } from "../FormoAnalytics";
-import { randomUUID } from "crypto";
+import { FormoAnalytics, ValidationError } from "../../src/FormoAnalytics";
+
+// Test ID prefix for identifying test data
+const TEST_PREFIX = "TEST_SDK_NODE";
 
 // Skip all integration tests by default
 // Change to `describe` to run, or use: FORMO_WRITE_KEY=xxx pnpm run test:integration
@@ -33,9 +35,6 @@ const getWriteKey = (): string => {
   return key;
 };
 
-// Generate a valid UUID for testing
-const generateTestId = () => randomUUID();
-
 integrationDescribe("FormoAnalytics Integration Tests", () => {
   let analytics: FormoAnalytics;
 
@@ -53,7 +52,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
 
   describe("Track Events", () => {
     test("successfully tracks a basic event", async () => {
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       await expect(
         analytics.track({
@@ -69,13 +68,13 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
     });
 
     test("successfully tracks event with all optional fields", async () => {
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       await expect(
         analytics.track({
           anonymousId: testId,
           event: "Integration Test - Full Track",
-          userId: `user-${testId}`,
+          userId: `${TEST_PREFIX}-user-${testId}`,
           properties: {
             testId,
             revenue: 99.99,
@@ -93,7 +92,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
     });
 
     test("successfully tracks event with Ethereum address", async () => {
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       await expect(
         analytics.track({
@@ -109,7 +108,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
     });
 
     test("tracks event with lowercase address (auto-checksummed)", async () => {
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       await expect(
         analytics.track({
@@ -124,12 +123,12 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
 
   describe("Identify Events", () => {
     test("successfully identifies a user", async () => {
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       await expect(
         analytics.identify({
           anonymousId: testId,
-          userId: `user-${testId}`,
+          userId: `${TEST_PREFIX}-user-${testId}`,
           properties: {
             email: `test-${testId}@example.com`,
             name: "Integration Test User",
@@ -141,7 +140,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
     });
 
     test("successfully identifies user with Ethereum address", async () => {
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       await expect(
         analytics.identify({
@@ -177,7 +176,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
     test("rejects track with empty event name", async () => {
       await expect(
         analytics.track({
-          anonymousId: generateTestId(),
+          anonymousId: "00000000-0000-0000-0000-000000000000",
           event: "", // Invalid
         })
       ).rejects.toThrow(ValidationError);
@@ -186,7 +185,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
     test("rejects track with invalid address", async () => {
       await expect(
         analytics.track({
-          anonymousId: generateTestId(),
+          anonymousId: "00000000-0000-0000-0000-000000000000",
           event: "Test Event",
           address: "not-a-valid-address", // Invalid
         })
@@ -196,7 +195,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
     test("rejects identify with empty userId", async () => {
       await expect(
         analytics.identify({
-          anonymousId: generateTestId(),
+          anonymousId: "00000000-0000-0000-0000-000000000000",
           userId: "", // Invalid
         })
       ).rejects.toThrow(ValidationError);
@@ -211,7 +210,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
         flushInterval: 60000, // Long interval so we control flush
       });
 
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       // Queue multiple events (should not send immediately)
       for (let i = 0; i < 5; i++) {
@@ -231,7 +230,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
         flushAt: 3, // Low threshold
       });
 
-      const testId = generateTestId();
+      const testId = "00000000-0000-0000-0000-000000000000";
 
       // This should trigger an auto-flush after the 3rd event
       for (let i = 0; i < 3; i++) {
@@ -257,7 +256,7 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
       // The SDK should either reject or handle the error gracefully
       try {
         await badAnalytics.track({
-          anonymousId: generateTestId(),
+          anonymousId: "00000000-0000-0000-0000-000000000000",
           event: "Should Fail",
         });
       } catch (error) {
@@ -283,7 +282,7 @@ if (require.main === module) {
     }
 
     const analytics = new FormoAnalytics(writeKey, { flushAt: 1 });
-    const testId = generateTestId();
+    const testId = "00000000-0000-0000-0000-000000000000";
 
     try {
       console.log("1. Tracking event...");
@@ -300,7 +299,7 @@ if (require.main === module) {
       console.log("\n2. Identifying user...");
       await analytics.identify({
         anonymousId: testId,
-        userId: `manual-test-user-${testId}`,
+        userId: `${TEST_PREFIX}-manual-test-user-${testId}`,
         properties: {
           source: "manual-test",
         },

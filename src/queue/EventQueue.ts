@@ -1,6 +1,5 @@
 // Event queue for batching and sending events
 
-import Formo from "../../sdks/sdk-server-side-typescript";
 import { IFormoEvent, IEventQueue } from "./type";
 
 type Callback = (...args: unknown[]) => void;
@@ -16,6 +15,9 @@ export interface QueueOptions {
   maxQueueSize?: number; // Flush when queue > N bytes
   retryCount?: number; // Retry failed requests N times
 }
+
+// API Configuration
+const EVENTS_API_HOST = "https://events.formo.so/v0/raw_events";
 
 // Constants with defaults
 const DEFAULT_FLUSH_AT = 20;
@@ -37,7 +39,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 export class EventQueue implements IEventQueue {
-  private client: Formo;
+  private writeKey: string;
   private queue: QueueItem[] = [];
   private timer: ReturnType<typeof setTimeout> | null = null;
   private pendingFlush: Promise<void> | null = null;
@@ -47,8 +49,12 @@ export class EventQueue implements IEventQueue {
   private maxQueueSize: number;
   private retryCount: number;
 
-  constructor(client: Formo, options: QueueOptions = {}) {
-    this.client = client;
+  constructor(writeKey: string, options: QueueOptions = {}) {
+    if (!writeKey || typeof writeKey !== "string") {
+      throw new Error("writeKey is required and must be a string");
+    }
+
+    this.writeKey = writeKey;
     this.flushAt = clamp(
       options.flushAt ?? DEFAULT_FLUSH_AT,
       MIN_FLUSH_AT,
@@ -138,10 +144,24 @@ export class EventQueue implements IEventQueue {
 
     for (let attempt = 0; attempt <= this.retryCount; attempt++) {
       try {
-        // Send each event through the Stainless client
-        for (const payload of payloads) {
-          await this.client.rawEvents.track(payload);
+        // Send events via HTTP POST
+        const response = await fetch(EVENTS_API_HOST, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${this.writeKey}`,
+          },
+          body: JSON.stringify(payloads),
+        });
+
+        if (!response.ok) {
+          const error = new Error(
+            `HTTP ${response.status}: ${response.statusText}`
+          ) as Error & { status: number };
+          (error as Error & { status: number }).status = response.status;
+          throw error;
         }
+
         return; // Success
       } catch (err) {
         lastError = err as Error;
