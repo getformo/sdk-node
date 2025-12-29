@@ -1,4 +1,4 @@
-import { SDKServerSide } from "../sdks/sdk-server-side-typescript";
+import Formo from "../sdks/sdk-server-side-typescript";
 import { randomUUID } from "crypto";
 import {
   TrackAPIEvent,
@@ -49,7 +49,7 @@ export { ValidationError } from "./validators";
  * ```
  */
 export class FormoAnalytics {
-  private client: SDKServerSide;
+  private client: Formo;
   private queue: EventQueue;
 
   /**
@@ -62,9 +62,9 @@ export class FormoAnalytics {
       throw new Error("writeKey is required and must be a string");
     }
 
-    this.client = new SDKServerSide({
-      bearerToken: writeKey,
-      environment: "production", // events.formo.so
+    this.client = new Formo({
+      apiKey: writeKey,
+      // baseURL defaults to https://events.formo.so
     });
 
     this.queue = new EventQueue(this.client, options);

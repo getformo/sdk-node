@@ -1,11 +1,11 @@
 // EventQueue Tests
 
 import { EventQueue, QueueOptions } from "./EventQueue";
-import { SDKServerSide } from "../../sdks/sdk-server-side-typescript";
+import Formo from "../../sdks/sdk-server-side-typescript";
 import { IFormoEvent } from "./type";
 import { randomUUID } from "crypto";
 
-// Mock the SDKServerSide client
+// Mock the Formo client
 const createMockClient = (
   trackFn: jest.Mock = jest.fn().mockResolvedValue({})
 ) => {
@@ -13,7 +13,7 @@ const createMockClient = (
     rawEvents: {
       track: trackFn,
     },
-  } as unknown as SDKServerSide;
+  } as unknown as Formo;
 };
 
 // Create a minimal valid event payload

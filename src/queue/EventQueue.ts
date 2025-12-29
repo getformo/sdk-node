@@ -1,6 +1,6 @@
 // Event queue for batching and sending events
 
-import { SDKServerSide } from "../../sdks/sdk-server-side-typescript";
+import Formo from "../../sdks/sdk-server-side-typescript";
 import { IFormoEvent, IEventQueue } from "./type";
 
 type Callback = (...args: unknown[]) => void;
@@ -37,7 +37,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 export class EventQueue implements IEventQueue {
-  private client: SDKServerSide;
+  private client: Formo;
   private queue: QueueItem[] = [];
   private timer: ReturnType<typeof setTimeout> | null = null;
   private pendingFlush: Promise<void> | null = null;
@@ -47,7 +47,7 @@ export class EventQueue implements IEventQueue {
   private maxQueueSize: number;
   private retryCount: number;
 
-  constructor(client: SDKServerSide, options: QueueOptions = {}) {
+  constructor(client: Formo, options: QueueOptions = {}) {
     this.client = client;
     this.flushAt = clamp(
       options.flushAt ?? DEFAULT_FLUSH_AT,
