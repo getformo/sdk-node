@@ -196,7 +196,7 @@ FORMO_WRITE_KEY=your-write-key
 ```
 
 2. Create a test script (e.g., `scripts/test-analytics.ts`) to verify the SDK works correctly:
-Below shows a sample test script:
+   Below shows a sample test script:
 
 ```typescript
 /**
@@ -249,8 +249,8 @@ async function main() {
   console.log("Sending test track event...");
 
   analytics.track({
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    event: "SDK Backend Link Test",
+    anonymousId: "00000000-0000-0000-0000-000000000000",
+    event: "TEST_SDK_NODE Backend Link Test",
     properties: {
       source: "formono-backend",
       timestamp: timestamp,
@@ -259,8 +259,8 @@ async function main() {
   });
 
   console.log("   Event queued:", {
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    event: "SDK Backend Link Test",
+    anonymousId: "00000000-0000-0000-0000-000000000000",
+    event: "TEST_SDK_NODE Backend Link Test",
     properties: {
       source: "formono-backend",
       timestamp: timestamp,
@@ -271,8 +271,8 @@ async function main() {
   console.log("\nSending test identify event...");
 
   analytics.identify({
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    userId: "test-user-backend",
+    anonymousId: "00000000-0000-0000-0000-000000000000",
+    userId: "TEST_SDK_NODE_test-user-backend",
     properties: {
       email: "test@formono-backend.local",
       source: "formono-backend",
@@ -281,8 +281,8 @@ async function main() {
   });
 
   console.log("   Identify event queued:", {
-    anonymousId: "00000000-0000-0000-0000-000000000000", // or a valid UUID
-    userId: "test-user-backend",
+    anonymousId: "00000000-0000-0000-0000-000000000000",
+    userId: "TEST_SDK_NODE_test-user-backend",
     properties: {
       email: "test@formono-backend.local",
       source: "formono-backend",
