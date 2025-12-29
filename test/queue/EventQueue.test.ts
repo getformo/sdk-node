@@ -65,7 +65,7 @@ describe("EventQueue", () => {
         expect.any(String),
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: "Basic test-write-key",
+            Authorization: "Bearer test-write-key",
           }),
         })
       );

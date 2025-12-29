@@ -149,7 +149,7 @@ export class EventQueue implements IEventQueue {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Basic ${this.writeKey}`,
+            Authorization: `Bearer ${this.writeKey}`,
           },
           body: JSON.stringify(payloads),
         });
