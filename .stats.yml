@@ -1,4 +1,4 @@
 configured_endpoints: 1
 openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/formo%2Fsdk-server-side-b7482fb20536be5e4af119a4cea5e4c9a67dc52bbd9ec9f9d9bc8501ac882e52.yml
 openapi_spec_hash: fd24c348c81fd638e871ee2b17047c04
-config_hash: 1fa813bc056db3ef9560fb7e1641748a
+config_hash: b28d4d9643edb35bbeac23e2c36d860d
