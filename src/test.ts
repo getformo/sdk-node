@@ -61,13 +61,13 @@ async function main() {
     }
   }
 
-  // Test 4: Validation error - missing userId for identify
-  console.log("\nTest 4: Validation error (missing userId for identify)...");
+  // Test 4: Validation error - missing address for identify
+  console.log("\nTest 4: Validation error (missing address for identify)...");
   try {
     await analytics.identify({
       anonymousId: "00000000-0000-0000-0000-000000000000",
-      userId: "", // Empty userId should fail
-    });
+      userId: "user-123",
+    } as any); // intentionally missing required address to test validation
     console.log("❌ Should have thrown ValidationError");
   } catch (err) {
     if (err instanceof ValidationError) {
@@ -91,14 +91,15 @@ async function main() {
     console.log(`❌ Failed to track event without anonymousId: ${err}`);
   }
 
-  // Test 6: Identify with properties
-  console.log("\nTest 6: Identify with properties...");
+  // Test 6: Identify with address and properties
+  console.log("\nTest 6: Identify with address and properties...");
   try {
     await analytics.identify({
+      address: "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
       userId: "user-123",
       properties: { email: "test@example.com" },
     });
-    console.log("✅ Successfully identified user with properties");
+    console.log("✅ Successfully identified user with address and properties");
   } catch (err) {
     console.log(`❌ Failed identify with properties: ${err}`);
   }

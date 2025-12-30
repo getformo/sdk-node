@@ -22,12 +22,12 @@ export interface TrackAPIEvent {
 
 export interface IdentifyAPIEvent {
   // Required.
-  userId: string; // Your application's user identifier
+  address: Address; // Ethereum wallet address (validated and checksummed)
 
   // Optional
   anonymousId?: string; // Device/session identifier for anonymous tracking
+  userId?: string; // Your application's user identifier
   properties?: IFormoEventProperties; // User properties
-  address?: Address; // Ethereum wallet address (validated and checksummed)
   context?: IFormoEventContext; // contextual information
 }
 
@@ -45,16 +45,7 @@ export interface AnalyticsOptions {
 
 export type EventChannel = "web" | "mobile" | "server";
 
-export type EventType =
-  | "identify"
-  | "track";
-  // | "page"
-  // | "connect"
-  // | "disconnect"
-  // | "detect"
-  // | "chain"
-  // | "signature"
-  // | "transaction";
+export type EventType = "identify" | "track";
 
 /**
  * Contextual information about the event

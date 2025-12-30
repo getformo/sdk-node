@@ -19,7 +19,10 @@ export type { TrackAPIEvent, IdentifyAPIEvent } from "../types";
  * Provides clear error messages for invalid inputs
  */
 export class ValidationError extends Error {
-  constructor(public readonly field: string, public readonly reason: string) {
+  constructor(
+    public readonly field: string,
+    public readonly reason: string
+  ) {
     super(`Invalid ${field}: ${reason}`);
     this.name = "ValidationError";
   }
@@ -95,9 +98,12 @@ export function validateIdentifyEvent(event: IdentifyAPIEvent): void {
     throw new ValidationError("anonymousId", "must be a valid UUID");
   }
 
-  // Required: userId must be a non-empty string
-  if (!isNonEmptyString(event.userId)) {
-    throw new ValidationError("userId", "must be a non-empty string");
+  // Optional: userId must be a non-empty string if provided
+  if (!isNullOrUndefined(event.userId) && !isNonEmptyString(event.userId)) {
+    throw new ValidationError(
+      "userId",
+      "must be a non-empty string if provided"
+    );
   }
 
   // Optional: properties must be an object if provided
@@ -110,8 +116,8 @@ export function validateIdentifyEvent(event: IdentifyAPIEvent): void {
     throw new ValidationError("context", "must be an object if provided");
   }
 
-  // Optional: address must be a valid Ethereum address if provided
-  if (!isNullOrUndefined(event.address) && !isAddress(event.address)) {
+  // Required: address must be a valid Ethereum address
+  if (!isAddress(event.address)) {
     throw new ValidationError(
       "address",
       "must be a valid Ethereum address (0x followed by 40 hex characters)"

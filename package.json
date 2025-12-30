@@ -2,6 +2,7 @@
   "name": "@formo/analytics-node",
   "version": "1.0.0",
   "main": "dist/cjs/src/index.js",
+  "license": "MIT",
   "module": "dist/esm/src/index.js",
   "types": "dist/cjs/src/index.d.ts",
   "scripts": {
@@ -12,7 +13,8 @@
     "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
     "test:queue": "jest test/queue/EventQueue.test.ts",
-    "test:integration": "RUN_INTEGRATION_TESTS=true jest test/__tests__/integration.test.ts --runInBand"
+    "test:integration": "RUN_INTEGRATION_TESTS=true jest test/__tests__/integration.test.ts --runInBand",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "ethereum-cryptography": "^3.2.0"
