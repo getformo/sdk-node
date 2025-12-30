@@ -1,6 +1,6 @@
 {
   "name": "@formo/analytics-node",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/cjs/src/index.js",
   "license": "MIT",
   "module": "dist/esm/src/index.js",
