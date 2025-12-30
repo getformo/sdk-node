@@ -2,6 +2,7 @@
   "name": "@formo/analytics-node",
   "version": "1.0.0",
   "main": "dist/cjs/src/index.js",
+  "license": "MIT",
   "module": "dist/esm/src/index.js",
   "types": "dist/cjs/src/index.d.ts",
   "scripts": {
