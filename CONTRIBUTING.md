@@ -1,142 +1,119 @@
-# Contributing to Formo Node SDK
+# How to contribute
 
-Thank you for your interest in contributing to the Formo Node SDK! This guide will help you get started.
+If you want to contribute or run a local version of the Formo Node SDK, follow these steps:
 
-## Table of Contents
+## Build the SDK Locally
 
-- [Project Structure](#project-structure)
-- [Setting Up the Development Environment](#setting-up-the-development-environment)
-- [Making Changes](#making-changes)
-- [Running Tests](#running-tests)
-- [Code Style](#code-style)
+Run the following command to build both CommonJS and ESM versions of the SDK:
 
-## Project Structure
-
-```
-sdk-node/
-├── src/                              # Main SDK source code
-│   ├── FormoAnalytics.ts             # Main SDK class
-│   ├── queue/                        # Event batching and retry logic
-│   ├── types/                        # TypeScript type definitions
-│   ├── utils/                        # Utilities (address checksumming, etc.)
-│   └── validators/                   # Input validation
-├── test/                             # Tests
-│   ├── __tests__/                    # Integration tests
-│   └── queue/                        # Unit tests for queue/events
-├── scripts/                          # Utility and test scripts
-└── package.json
+```bash
+pnpm install
+pnpm build
+pnpm test
 ```
 
-## Setting Up the Development Environment
+## Testing Locally
 
-1. **Clone the repository:**
+### Link the Local Package
 
-   ```bash
-   git clone <repo-url>
-   cd sdk-node
-   ```
+To test your SDK changes in a test app, you can link the package locally using `npm link` or `pnpm link`.
 
-2. **Install dependencies:**
+For example, if your projects are in the same directory:
 
-   This project uses [pnpm](https://pnpm.io/). Other package managers may work but are not officially supported.
+```
+~/
+├── your-app/
+└── sdk-node/
+```
 
-   ```bash
-   pnpm install
-   ```
+Run the following commands:
 
-3. **Build the project:**
+```bash
+# In ~/your-app
+pnpm link ../sdk-node
+```
 
-   ```bash
-   pnpm build
-   ```
+Or with npm:
 
-## Making Changes
+```bash
+# In ~/your-app
+npm link ../sdk-node
+```
 
-The core SDK logic in `src/` is manually maintained.
+### Apply Changes
 
-Key components:
+Any changes you make to your local package require rebuilding to be reflected:
 
-- `FormoAnalytics.ts`: Main entry point and public API.
-- `queue/`: Handles event buffering, batching, and retrying.
-- `types/`: Use this for all shared interfaces and types.
+```bash
+# In ~/sdk-node
+pnpm build
+```
 
-When making changes:
+The changes will automatically be available in the linked project.
 
-1. Create a feature branch from `main`.
-2. Make your changes with appropriate tests.
-3. Ensure all unit tests pass: `npm test`.
-4. If modifying API interactions, verify with integration tests (see below).
-5. Submit a pull request.
+### Unlink the Package
+
+To remove the link:
+
+```bash
+# In ~/your-app
+pnpm unlink ../sdk-node
+```
+
+Or with npm:
+
+```bash
+# In ~/your-app
+npm unlink ../sdk-node
+```
 
 ## Running Tests
 
-### Unit Tests
-
-Run the full unit test suite:
+Run the test suite:
 
 ```bash
-npm test
-```
-
-Or just the queue/logic tests:
-
-```bash
-npm run test:queue
+pnpm test
 ```
 
 ### Integration Tests
 
-These tests make real network requests to the Formo API. You need a valid Write Key.
+These tests make real network requests to the Formo API. You need a valid Write Key:
 
 ```bash
-FORMO_WRITE_KEY=your-key npm run test:integration
+FORMO_WRITE_KEY=your-key pnpm run test:integration
 ```
 
-### Manual Testing Script
+## Linting
 
-To verify functionality with a real script in a separate environment:
-
-1. Create a `.env` file with `FORMO_WRITE_KEY=your-key`
-2. Run the manual test script:
-   ```bash
-   pnpm run script:test-analytics
-   ```
-
-### Testing Packaging
-
-To simulate consuming the package as a real user:
-
-1. Create a tarball:
-
-   ```bash
-   npm pack
-   ```
-
-   This creates a file like `formo-analytics-node-1.0.0.tgz`.
-
-2. Install it in another project:
-
-   ```bash
-   npm install /path/to/sdk-node/formo-analytics-node-1.0.0.tgz
-   ```
-
-3. Verify usage works as expected.
-
-## Code Style
-
-This project uses:
-
-- [Prettier](https://prettier.io/) for code formatting
-- [ESLint](https://eslint.org/) for linting
+Check code style and types:
 
 ```bash
-# Check linting
 pnpm lint
-
-# Fix linting and formatting issues
-pnpm fix
 ```
 
-## Questions?
+## Publishing
 
-If you have questions or need help, please open an issue on GitHub.
+1. **Update the version** using npm:
+
+   ```bash
+   npm version patch  # For bug fixes
+   npm version minor  # For new features
+   npm version major  # For breaking changes
+   ```
+
+   This automatically:
+
+   - Updates `package.json` with the new version
+   - Creates a git commit with the change
+   - Creates a version tag (e.g., `v1.0.1`)
+
+2. **Push the commit and tag**:
+
+   ```bash
+   git push --follow-tags
+   ```
+
+3. **Automatic workflow execution**:
+   - GitHub Actions workflow triggers on the `v*` tag
+   - Builds and tests the package
+   - Publishes to npm

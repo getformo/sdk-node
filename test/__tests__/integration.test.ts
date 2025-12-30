@@ -115,12 +115,12 @@ integrationDescribe("FormoAnalytics Integration Tests", () => {
         })
       ).rejects.toThrow(ValidationError);
 
-      // Empty userId
+      // Missing address for identify
       await expect(
         analytics.identify({
           anonymousId: TEST_ID,
-          userId: "", // Invalid
-        })
+          userId: `${TEST_PREFIX}-user`,
+        } as any) // Missing required address
       ).rejects.toThrow(ValidationError);
     });
 
@@ -186,6 +186,7 @@ if (require.main === module) {
 
       console.log("\n2. Identifying user...");
       await manualAnalytics.identify({
+        address: "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
         anonymousId: TEST_ID,
         userId: `${TEST_PREFIX}-manual-test-user`,
         properties: {

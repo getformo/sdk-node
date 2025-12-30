@@ -39,7 +39,7 @@ export { ValidationError } from "./validators";
  *
  * // Identify a user
  * await analytics.identify({
- *   userId: "user-123",
+ *   address: "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
  *   properties: { email: "user@example.com", plan: "premium" }
  * });
  *
@@ -115,10 +115,10 @@ export class FormoAnalytics {
    * Identify a user
    *
    * @param event - Identify event
-   * @param event.userId - Required. Your user identifier
+   * @param event.address - Required. Ethereum wallet address
    * @param event.anonymousId - Optional. Device/session identifier (generated if not provided)
+   * @param event.userId - Optional. Your user identifier
    * @param event.properties - Optional. User traits/properties
-   * @param event.address - Optional. Ethereum wallet address
    * @param event.context - Optional. Additional context
    *
    * @throws ValidationError if options are invalid
@@ -140,7 +140,7 @@ export class FormoAnalytics {
       channel: "server",
       version: VERSION,
       anonymous_id: event.anonymousId!,
-      user_id: event.userId,
+      user_id: event.userId ?? "",
       properties: event.properties ?? {},
       context: {
         library_name: LIBRARY_NAME,
