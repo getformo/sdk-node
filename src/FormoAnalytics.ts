@@ -140,7 +140,7 @@ export class FormoAnalytics {
       channel: "server",
       version: VERSION,
       anonymous_id: event.anonymousId!,
-      user_id: event.userId ?? "",
+      user_id: event.userId ?? null,
       properties: event.properties ?? {},
       context: {
         library_name: LIBRARY_NAME,
