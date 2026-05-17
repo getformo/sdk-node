@@ -1,0 +1,11 @@
+{
+  "tags": [
+    "github-actions",
+    "node"
+  ],
+  "sentinels": [
+    "package.json"
+  ],
+  "detectedAt": "2026-05-16T23:07:50.002Z",
+  "rootPath": "/Users/yos/sdk-node"
+}
