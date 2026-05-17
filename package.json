@@ -14,13 +14,6 @@
     "provenance": true
   },
   "packageManager": "pnpm@11.1.2",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "11.1.2",
-      "onFail": "warn"
-    }
-  },
   "scripts": {
     "build": "pnpm build:cjs && pnpm build:esm",
     "build:cjs": "tsc --project tsconfig.cjs.json",
