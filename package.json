@@ -21,9 +21,6 @@
       "onFail": "error"
     }
   },
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
     "build": "pnpm build:cjs && pnpm build:esm",
     "build:cjs": "tsc --project tsconfig.cjs.json",

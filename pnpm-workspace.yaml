@@ -2,6 +2,11 @@
 # In pnpm 11, general settings live here instead of .npmrc
 # (.npmrc now only accepts auth/registry settings).
 
+# Single-package repo: declare the root explicitly so the workspace
+# schema is satisfied and resolution is unaffected if subdirs are added.
+packages:
+  - '.'
+
 # Supply-chain cooldown: don't resolve dependency versions until they
 # are at least 2880 minutes (48h) old. pnpm 11's default is 1440 (24h);
 # this preserves the explicit 48h policy from PR #14.
