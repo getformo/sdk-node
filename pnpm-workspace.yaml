@@ -1,0 +1,29 @@
+# pnpm 11 configuration.
+# In pnpm 11, general settings live here instead of .npmrc
+# (.npmrc now only accepts auth/registry settings).
+
+# Single-package repo: declare the root explicitly so the workspace
+# schema is satisfied and resolution is unaffected if subdirs are added.
+packages:
+  - '.'
+
+# Supply-chain cooldown: don't resolve dependency versions until they
+# are at least 2880 minutes (48h) old. pnpm 11's default is 1440 (24h);
+# this preserves the explicit 48h policy from PR #14.
+minimumReleaseAge: 2880
+
+# Dependency build-script policy (pnpm 11 strictDepBuilds default).
+# Both packages ship prebuilt native bindings via platform-specific
+# optional dependencies (@swc/core-*, @unrs/resolver-binding-*), so
+# their postinstall source-compile fallback is not needed. Keep the
+# build scripts disabled.
+allowBuilds:
+  '@swc/core': false
+  unrs-resolver: false
+
+# Security pins (migrated from package.json "overrides", which pnpm
+# does not read — pnpm uses this `overrides` field instead).
+overrides:
+  test-exclude: ^8.0.0
+  brace-expansion: ^5.0.5
+  minimatch: ^9.0.7 || ^10.2.3
