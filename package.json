@@ -1,6 +1,6 @@
 {
   "name": "@formo/analytics-node",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/cjs/src/index.js",
   "license": "MIT",
   "module": "dist/esm/src/index.js",
@@ -14,13 +14,6 @@
     "provenance": true
   },
   "packageManager": "pnpm@11.1.2",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "11.1.2",
-      "onFail": "error"
-    }
-  },
   "scripts": {
     "build": "pnpm build:cjs && pnpm build:esm",
     "build:cjs": "tsc --project tsconfig.cjs.json",
