@@ -8,9 +8,8 @@ packages:
   - '.'
 
 # Supply-chain cooldown: don't resolve dependency versions until they
-# are at least 2880 minutes (48h) old. pnpm 11's default is 1440 (24h);
-# this preserves the explicit 48h policy from PR #14.
-minimumReleaseAge: 2880
+# are at least 10080 minutes (7d) old. pnpm 11's default is 1440 (24h).
+minimumReleaseAge: 10080
 
 # Dependency build-script policy (pnpm 11 strictDepBuilds default).
 # Both packages ship prebuilt native bindings via platform-specific
