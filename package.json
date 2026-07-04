@@ -29,7 +29,7 @@
     "ethereum-cryptography": "3.2.0"
   },
   "devDependencies": {
-    "@swc/core": "^1.15.40",
+    "@swc/core": "^1.15.43",
     "@swc/jest": "^0.2.29",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.1",
