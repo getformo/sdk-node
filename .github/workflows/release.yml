@@ -5,13 +5,14 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  id-token: write  # Required for OIDC trusted publishing
-  contents: write  # Required for creating GitHub releases
+permissions: {}
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required for creating GitHub releases
+      id-token: write  # Required for OIDC trusted publishing
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
